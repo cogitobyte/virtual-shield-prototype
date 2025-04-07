@@ -10,16 +10,16 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black overflow-x-hidden">
       {isMobile ? (
-        // Mobile view - just show the phone directly
+        // Mobile view - just show the tablet directly
         <div className="pt-4 px-4 pb-20">
           <PhoneFrame>
             <Dashboard />
           </PhoneFrame>
         </div>
       ) : (
-        // Desktop view - show landing page with phone mockup
-        <div className="container mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between p-4 lg:p-8 min-h-screen">
-          <div className="mb-12 lg:mb-0 lg:w-1/2 max-w-2xl">
+        // Desktop view - show landing page with tablet mockup
+        <div className="container mx-auto flex flex-col lg:flex-row items-center justify-center p-4 lg:p-8 min-h-screen">
+          <div className="mb-12 lg:mb-0 lg:w-1/3 max-w-md">
             <div className="space-y-3 mb-8">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-shield/10 border border-shield/20 text-shield-light text-sm">
                 <Icon name="shieldCheck" className="h-4 w-4 mr-2" />
@@ -86,7 +86,7 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="relative">
+          <div className="relative lg:w-2/3 flex justify-center">
             <div className="absolute -top-20 -left-20 h-60 w-60 bg-shield-accent/10 rounded-full blur-3xl"></div>
             <div className="absolute -bottom-20 -right-20 h-80 w-80 bg-shield/10 rounded-full blur-3xl"></div>
             
