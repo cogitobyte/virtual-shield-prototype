@@ -1,6 +1,8 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Icon } from './Icon';
 
 interface PhoneFrameProps {
   children: ReactNode;
@@ -33,13 +35,13 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
   }, []);
 
   return (
-    <div className={`relative ${isMobile ? "w-full" : "w-[300px]"} h-[600px] bg-gradient-to-br from-shield-dark to-black rounded-[36px] border-[10px] border-gray-900 shadow-lg overflow-hidden`}>
-      {/* Phone notch */}
-      <div className="phone-notch z-10"></div>
-      
+    <div className={`relative ${isMobile ? "w-full" : "w-[420px]"} bg-gradient-to-br from-shield-dark to-black rounded-lg border border-gray-800 shadow-lg overflow-hidden`}>
       {/* Status bar */}
-      <div className="absolute top-1 left-0 right-0 h-6 px-6 flex justify-between items-center text-xs text-white z-10">
-        <span>9:41</span>
+      <div className="absolute top-0 left-0 right-0 h-10 px-4 bg-shield-dark/80 backdrop-blur-md flex justify-between items-center text-xs text-white z-10">
+        <div className="flex items-center space-x-2">
+          <Icon name="shield" className="h-4 w-4 text-shield-light" />
+          <span>Virtual Shield</span>
+        </div>
         <div className="flex items-center space-x-1">
           <span className="block h-2.5 w-2.5 rounded-full bg-shield-light"></span>
           <span className="block h-2.5 w-2.5 rounded-full bg-shield-secondary"></span>
@@ -62,7 +64,7 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
       ))}
       
       {/* Content */}
-      <div className="h-full overflow-auto p-2 pt-7">
+      <div className="h-full overflow-auto p-4 pt-14">
         {children}
       </div>
     </div>
