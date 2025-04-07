@@ -19,7 +19,7 @@ const Index = () => {
       ) : (
         // Desktop view - show landing page with tablet mockup
         <div className="container mx-auto flex flex-col lg:flex-row items-center justify-center p-4 lg:p-8 min-h-screen">
-          <div className="mb-12 lg:mb-0 lg:w-1/3 max-w-md">
+          <div className="mb-12 lg:mb-0 lg:w-1/4 max-w-sm">
             <div className="space-y-3 mb-8">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-shield/10 border border-shield/20 text-shield-light text-sm">
                 <Icon name="shieldCheck" className="h-4 w-4 mr-2" />
@@ -42,7 +42,7 @@ const Index = () => {
                 keeps your apps working while protecting your personal information.
               </p>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="bg-shield-dark/30 rounded-lg p-4 border border-shield-dark group hover:bg-shield-dark/40 transition-all duration-300">
                   <div className="flex space-x-3 mb-2">
                     <div className="h-8 w-8 bg-shield/20 rounded-lg flex items-center justify-center group-hover:bg-shield/30 transition-colors">
@@ -62,31 +62,11 @@ const Index = () => {
                   </div>
                   <p className="text-sm leading-relaxed">Intelligent system that detects suspicious permission patterns and validates legitimate requests.</p>
                 </div>
-                
-                <div className="bg-shield-dark/30 rounded-lg p-4 border border-shield-dark group hover:bg-shield-dark/40 transition-all duration-300">
-                  <div className="flex space-x-3 mb-2">
-                    <div className="h-8 w-8 bg-shield/20 rounded-lg flex items-center justify-center group-hover:bg-shield/30 transition-colors">
-                      <Icon name="database" className="h-5 w-5 text-shield-accent" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-shield-accent">Data Generation</h3>
-                  </div>
-                  <p className="text-sm leading-relaxed">Creates believable virtual call logs, messages, and more to satisfy app requirements.</p>
-                </div>
-                
-                <div className="bg-shield-dark/30 rounded-lg p-4 border border-shield-dark group hover:bg-shield-dark/40 transition-all duration-300">
-                  <div className="flex space-x-3 mb-2">
-                    <div className="h-8 w-8 bg-shield/20 rounded-lg flex items-center justify-center group-hover:bg-shield/30 transition-colors">
-                      <Icon name="layers" className="h-5 w-5 text-shield-accent" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-shield-accent">Seamless Integration</h3>
-                  </div>
-                  <p className="text-sm leading-relaxed">Works behind the scenes without disrupting app functionality or user experience.</p>
-                </div>
               </div>
             </div>
           </div>
           
-          <div className="relative lg:w-2/3 flex justify-center">
+          <div className="relative lg:w-3/4 flex justify-center">
             <div className="absolute -top-20 -left-20 h-60 w-60 bg-shield-accent/10 rounded-full blur-3xl"></div>
             <div className="absolute -bottom-20 -right-20 h-80 w-80 bg-shield/10 rounded-full blur-3xl"></div>
             

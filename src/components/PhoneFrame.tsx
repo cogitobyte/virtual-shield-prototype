@@ -35,7 +35,7 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
   }, []);
 
   return (
-    <div className={`relative ${isMobile ? "w-full" : "w-[800px] max-h-[600px]"} bg-gradient-to-br from-shield-dark to-black rounded-lg border border-gray-800 shadow-lg overflow-hidden`}>
+    <div className={`relative ${isMobile ? "w-full" : "w-[900px] max-h-[700px]"} bg-gradient-to-br from-shield-dark to-black rounded-lg border border-gray-800 shadow-lg overflow-hidden`}>
       {/* Status bar */}
       <div className="absolute top-0 left-0 right-0 h-10 px-4 bg-shield-dark/80 backdrop-blur-md flex justify-between items-center text-xs text-white z-10">
         <div className="flex items-center space-x-2">

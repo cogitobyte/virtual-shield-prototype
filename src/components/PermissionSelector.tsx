@@ -17,7 +17,7 @@ export function PermissionSelector({ onSelectPermission, isLoading }: Permission
     <Card className="border border-shield-dark/20">
       <CardContent className="pt-6">
         <h3 className="text-lg font-semibold mb-4">Request Permission</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {permissions.map(([permission, details]) => (
             <Button
               key={permission}
@@ -27,11 +27,11 @@ export function PermissionSelector({ onSelectPermission, isLoading }: Permission
               onClick={() => onSelectPermission(permission)}
             >
               <div className="flex items-center">
-                <div className="h-10 w-10 rounded-full bg-shield flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-shield flex items-center justify-center flex-shrink-0">
                   <Icon name={details.icon} className="h-5 w-5 text-white" />
                 </div>
                 <div className="ml-3 text-left">
-                  <div className="font-medium">{details.title}</div>
+                  <div className="font-medium text-sm">{details.title}</div>
                   <div className="text-xs text-muted-foreground">{details.description}</div>
                 </div>
               </div>

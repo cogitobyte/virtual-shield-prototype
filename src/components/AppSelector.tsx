@@ -18,9 +18,9 @@ export function AppSelector({ selectedApp, onSelectApp }: AppSelectorProps) {
     <Card className="border border-shield-dark/20">
       <CardContent className="pt-6">
         <h3 className="text-lg font-semibold mb-4">Select Application</h3>
-        <RadioGroup className="space-y-3">
+        <RadioGroup className="grid grid-cols-1 gap-3">
           {MOCK_APPS.map((app) => (
-            <div key={app.id} className="flex items-center space-x-2">
+            <div key={app.id} className="flex items-center">
               <RadioGroupItem 
                 value={app.id} 
                 id={`app-${app.id}`}

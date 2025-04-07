@@ -103,15 +103,17 @@ export function Dashboard() {
           <div className="px-1">
             {activeTab === "request" ? (
               <div className="space-y-4">
-                <AppSelector 
-                  selectedApp={selectedApp} 
-                  onSelectApp={handleSelectApp} 
-                />
-                
-                <PermissionSelector
-                  onSelectPermission={handleRequestPermission}
-                  isLoading={isLoading}
-                />
+                <div className="grid grid-cols-1 gap-4">
+                  <AppSelector 
+                    selectedApp={selectedApp} 
+                    onSelectApp={handleSelectApp} 
+                  />
+                  
+                  <PermissionSelector
+                    onSelectPermission={handleRequestPermission}
+                    isLoading={isLoading}
+                  />
+                </div>
                 
                 {isLoading && (
                   <div className="text-center py-2 text-muted-foreground">
@@ -165,32 +167,32 @@ export function Dashboard() {
           </TabsList>
           
           <TabsContent value="request" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <AppSelector 
-                  selectedApp={selectedApp} 
-                  onSelectApp={handleSelectApp} 
-                />
-                
-                <PermissionSelector
-                  onSelectPermission={handleRequestPermission}
-                  isLoading={isLoading}
-                />
-                
-                {isLoading && (
-                  <div className="text-center py-2 text-muted-foreground">
-                    <Button variant="ghost" disabled className="pointer-events-none">
-                      <Icon name="loader" className="h-4 w-4 mr-2 animate-spin" />
-                      Processing request...
-                    </Button>
-                  </div>
-                )}
-              </div>
-              
-              <PermissionResult 
-                result={permissionResult} 
-                permissionType={lastPermissionType}
+            <div className="grid grid-cols-2 gap-4">
+              <AppSelector 
+                selectedApp={selectedApp} 
+                onSelectApp={handleSelectApp} 
               />
+              
+              <PermissionSelector
+                onSelectPermission={handleRequestPermission}
+                isLoading={isLoading}
+              />
+              
+              {isLoading && (
+                <div className="col-span-2 text-center py-2 text-muted-foreground">
+                  <Button variant="ghost" disabled className="pointer-events-none">
+                    <Icon name="loader" className="h-4 w-4 mr-2 animate-spin" />
+                    Processing request...
+                  </Button>
+                </div>
+              )}
+              
+              <div className="col-span-2">
+                <PermissionResult 
+                  result={permissionResult} 
+                  permissionType={lastPermissionType}
+                />
+              </div>
             </div>
           </TabsContent>
           
