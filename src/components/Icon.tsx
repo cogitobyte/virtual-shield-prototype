@@ -6,13 +6,33 @@ type IconProps = {
   name: string;
   className?: string;
   size?: number;
+  strokeWidth?: number;
+  onClick?: () => void;
 };
 
-export const Icon: React.FC<IconProps> = ({ name, className = '', size = 24 }) => {
-  // @ts-ignore - dynamically access the icon
-  const LucideIcon = LucideIcons[name.charAt(0).toUpperCase() + name.slice(1)] || LucideIcons.HelpCircle;
+export const Icon: React.FC<IconProps> = ({ 
+  name, 
+  className = '', 
+  size = 24, 
+  strokeWidth = 2,
+  onClick 
+}) => {
+  // Convert kebab-case or snake_case to camelCase
+  const formattedName = name
+    .replace(/[-_]([a-z])/g, (_, letter) => letter.toUpperCase())
+    .replace(/^\w/, c => c.toUpperCase());
   
-  return <LucideIcon className={className} size={size} />;
+  // @ts-ignore - dynamically access the icon
+  const LucideIcon = LucideIcons[formattedName] || LucideIcons.HelpCircle;
+  
+  return (
+    <LucideIcon 
+      className={className} 
+      size={size} 
+      strokeWidth={strokeWidth}
+      onClick={onClick}
+    />
+  );
 };
 
 export default Icon;
