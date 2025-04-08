@@ -79,7 +79,7 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="text-xs flex items-center gap-1"
+                className="text-xs flex items-center gap-1 bg-shield-light/10 hover:bg-shield-light/20 border-shield-light/30"
                 onClick={() => setAutoScroll(!autoScroll)}
               >
                 <Icon name={autoScroll ? "mouse-pointer-click" : "mouse"} className="h-3 w-3" />
@@ -87,12 +87,13 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
               </Button>
             </div>
             
-            <div className={`relative border border-shield-dark/20 rounded-md p-1 ${isProcessing ? 'process-animation' : ''}`}>
-              <div className="flex justify-end mb-1">
+            <div className={`relative border border-shield-dark/20 rounded-md ${isProcessing ? 'process-animation' : ''}`}>
+              <div className="bg-shield-dark/10 px-3 py-2 rounded-t-md flex justify-between items-center border-b border-shield-dark/20">
+                <span className="text-xs font-medium text-shield-light">Scroll Controls</span>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="h-6 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                  className="h-6 text-xs text-shield-light hover:text-shield-accent flex items-center gap-1"
                   onClick={() => {
                     const scrollContainer = document.querySelector('.scroll-content');
                     if (scrollContainer) {
@@ -105,7 +106,7 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
                 </Button>
               </div>
             
-              <ScrollArea className={`h-[240px] rounded-md ${autoScroll ? 'overflow-auto' : ''}`}>
+              <ScrollArea className={`h-[240px] rounded-b-md ${autoScroll ? 'overflow-auto' : ''}`}>
                 <div className="p-3 text-sm scroll-content">
                   {Array.isArray(result.data) ? (
                     result.data.map((item, index) => (
@@ -124,11 +125,12 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
                 </div>
               </ScrollArea>
               
-              <div className="flex justify-end mt-1">
+              <div className="bg-shield-dark/10 px-3 py-2 rounded-b-md flex justify-between items-center border-t border-shield-dark/20">
+                <span className="text-xs text-shield-light/70">Use scroll controls to navigate data</span>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="h-6 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                  className="h-6 text-xs text-shield-light hover:text-shield-accent flex items-center gap-1"
                   onClick={() => {
                     const scrollContainer = document.querySelector('.scroll-content');
                     if (scrollContainer) {
