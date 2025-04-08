@@ -63,17 +63,9 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
         />
       ))}
       
-      {/* Content with scrolling */}
-      <div className="h-full overflow-y-auto p-6 pt-14 scroll-container">
+      {/* Content */}
+      <div className="h-full overflow-auto p-6 pt-14">
         {children}
-        
-        {/* Visual scroll indicators */}
-        <div className="fixed bottom-6 right-6 z-10 opacity-80 pointer-events-none">
-          <div className="bg-shield-dark/60 backdrop-blur-sm text-shield-light py-1 px-2 rounded-full text-xs flex items-center gap-1 shadow-lg">
-            <Icon name="scroll" className="h-3 w-3" />
-            <span>Scroll for more</span>
-          </div>
-        </div>
       </div>
     </div>
   );
