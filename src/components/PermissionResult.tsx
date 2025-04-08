@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -102,31 +101,38 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
                   }}
                 >
                   <Icon name="chevrons-up" className="h-3 w-3" />
-                  Scroll to top
+                  <span className="font-semibold">Scroll to top</span>
                 </Button>
               </div>
             
-              <ScrollArea className={`h-[240px] rounded-b-md ${autoScroll ? 'overflow-auto' : ''}`}>
-                <div className="p-3 text-sm scroll-content">
-                  {Array.isArray(result.data) ? (
-                    result.data.map((item, index) => (
-                      <div key={item.id || index} className="mb-3">
-                        <div className="font-mono bg-shield-dark/30 p-2 rounded-md overflow-x-auto">
-                          <pre className="text-xs">{JSON.stringify(item, null, 2)}</pre>
+              <div className="relative">
+                <ScrollArea className={`h-[240px] rounded-b-md ${autoScroll ? 'overflow-auto' : ''}`}>
+                  <div className="p-3 text-sm scroll-content">
+                    {Array.isArray(result.data) ? (
+                      result.data.map((item, index) => (
+                        <div key={item.id || index} className="mb-3">
+                          <div className="font-mono bg-shield-dark/30 p-2 rounded-md overflow-x-auto">
+                            <pre className="text-xs">{JSON.stringify(item, null, 2)}</pre>
+                          </div>
+                          {index < result.data.length - 1 && <Separator className="my-3" />}
                         </div>
-                        {index < result.data.length - 1 && <Separator className="my-3" />}
+                      ))
+                    ) : (
+                      <div className="font-mono bg-shield-dark/30 p-2 rounded-md overflow-x-auto">
+                        <pre className="text-xs">{JSON.stringify(result.data, null, 2)}</pre>
                       </div>
-                    ))
-                  ) : (
-                    <div className="font-mono bg-shield-dark/30 p-2 rounded-md overflow-x-auto">
-                      <pre className="text-xs">{JSON.stringify(result.data, null, 2)}</pre>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </ScrollArea>
+                
+                <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex flex-col items-center gap-1 text-shield-light/70 pointer-events-none">
+                  <Icon name="chevron-up" className="h-3 w-3" />
+                  <Icon name="chevron-down" className="h-3 w-3" />
                 </div>
-              </ScrollArea>
+              </div>
               
               <div className="bg-shield-dark/10 px-3 py-2 rounded-b-md flex justify-between items-center border-t border-shield-dark/20">
-                <span className="text-xs text-shield-light/70">Use scroll controls to navigate data</span>
+                <span className="text-xs text-shield-light/70">Use your mouse wheel or touchpad to scroll</span>
                 <Button 
                   variant="ghost" 
                   size="sm"
@@ -139,7 +145,7 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
                   }}
                 >
                   <Icon name="chevrons-down" className="h-3 w-3" />
-                  Scroll to bottom
+                  <span className="font-semibold">Scroll to bottom</span>
                 </Button>
               </div>
               
