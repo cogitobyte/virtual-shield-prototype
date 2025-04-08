@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { PermissionResponse } from '@/modules/types';
 import { Icon } from '@/components/Icon';
 import { formatDistanceToNow } from 'date-fns';
@@ -15,6 +16,7 @@ interface PermissionResultProps {
 
 export function PermissionResult({ result, permissionType }: PermissionResultProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(true);
   
   useEffect(() => {
     if (result) {
@@ -67,16 +69,44 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
         
         {result.granted && result.data && (
           <div className={`transition-opacity duration-500 ${isProcessing ? 'opacity-50' : 'opacity-100'}`}>
-            <div className="flex items-center gap-2 mb-2">
-              <div 
-                className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-green-400 animate-pulse-opacity' : 'bg-green-400'}`}
-              />
-              <h4 className="font-medium">Generated Virtual Data</h4>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div 
+                  className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-green-400 animate-pulse-opacity' : 'bg-green-400'}`}
+                />
+                <h4 className="font-medium">Generated Virtual Data</h4>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs flex items-center gap-1"
+                onClick={() => setAutoScroll(!autoScroll)}
+              >
+                <Icon name={autoScroll ? "mouse-pointer-click" : "mouse"} className="h-3 w-3" />
+                {autoScroll ? "Auto-Scroll: On" : "Auto-Scroll: Off"}
+              </Button>
             </div>
             
             <div className={`relative border border-shield-dark/20 rounded-md p-1 ${isProcessing ? 'process-animation' : ''}`}>
-              <ScrollArea className="h-[240px] rounded-md">
-                <div className="p-3 text-sm">
+              <div className="flex justify-end mb-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-6 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                  onClick={() => {
+                    const scrollContainer = document.querySelector('.scroll-content');
+                    if (scrollContainer) {
+                      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  <Icon name="chevrons-up" className="h-3 w-3" />
+                  Scroll to top
+                </Button>
+              </div>
+            
+              <ScrollArea className={`h-[240px] rounded-md ${autoScroll ? 'overflow-auto' : ''}`}>
+                <div className="p-3 text-sm scroll-content">
                   {Array.isArray(result.data) ? (
                     result.data.map((item, index) => (
                       <div key={item.id || index} className="mb-3">
@@ -93,6 +123,23 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
                   )}
                 </div>
               </ScrollArea>
+              
+              <div className="flex justify-end mt-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-6 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                  onClick={() => {
+                    const scrollContainer = document.querySelector('.scroll-content');
+                    if (scrollContainer) {
+                      scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  <Icon name="chevrons-down" className="h-3 w-3" />
+                  Scroll to bottom
+                </Button>
+              </div>
               
               {isProcessing && (
                 Array.from({ length: 5 }).map((_, i) => (
