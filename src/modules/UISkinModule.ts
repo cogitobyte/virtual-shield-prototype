@@ -55,6 +55,36 @@ class UISkinModule {
   }
   
   /**
+   * Generates a contextual warning message for a permission request
+   */
+  private generateWarningMessage(app: App, permissionType: PermissionType): string {
+    // Get the app category
+    const appCategory = app.id.includes('photo') ? 'photography' : 
+                        app.id.includes('map') ? 'navigation' :
+                        app.id.includes('call') || app.id.includes('message') ? 'communication' :
+                        app.id.includes('social') ? 'social' :
+                        app.id.includes('game') ? 'gaming' :
+                        app.id.includes('doc') || app.id.includes('note') ? 'productivity' : 
+                        'utility';
+    
+    // Generate context-appropriate warning message
+    if (permissionType === 'LOCATION' && appCategory !== 'navigation') {
+      return `This ${appCategory} app doesn't typically need location data to function properly. Sharing your location may allow the app to track your movements.`;
+    } else if (permissionType === 'CONTACTS' && !['social', 'communication', 'productivity'].includes(appCategory)) {
+      return `This ${appCategory} app doesn't normally require access to your contacts. Granting this permission could expose your personal network.`;
+    } else if (permissionType === 'FILE_ACCESS' && !['photography', 'productivity'].includes(appCategory)) {
+      return `This ${appCategory} app doesn't typically need access to your files. Granting this permission could allow access to your personal documents and media.`;
+    } else if (permissionType === 'CALL_LOGS' && appCategory !== 'communication') {
+      return `This ${appCategory} app doesn't usually need your call history. Granting this permission could expose your communication patterns.`;
+    } else if (permissionType === 'MESSAGES' && !['social', 'communication'].includes(appCategory)) {
+      return `This ${appCategory} app doesn't typically need access to your messages. Granting this permission could compromise private conversations.`;
+    }
+    
+    // Default warning
+    return `This app doesn't typically need this permission to function properly. Granting it could potentially expose your data.`;
+  }
+  
+  /**
    * Creates a confirmation request that can be handled by the UI
    */
   public createConfirmationRequest(app: App, permissionType: PermissionType): Promise<boolean> {
@@ -62,9 +92,12 @@ class UISkinModule {
       const requestId = `confirm-${Date.now()}`;
       this.pendingConfirmations.set(requestId, { resolve, app, permissionType });
       
+      // Generate contextual warning message
+      const warningMessage = this.generateWarningMessage(app, permissionType);
+      
       // This will be picked up by an event listener in the UI
       const event = new CustomEvent('permission-confirmation-required', { 
-        detail: { requestId, app, permissionType } 
+        detail: { requestId, app, permissionType, warningMessage } 
       });
       window.dispatchEvent(event);
       
@@ -104,17 +137,23 @@ class UISkinModule {
   /**
    * Generate dummy data for denied permissions
    */
-  private generateDummyResponseData(permissionType: PermissionType): PermissionResponse {
+  private generateDummyResponseData(app: App, permissionType: PermissionType): PermissionResponse {
     // Generate fake data using VirtualRAM
     const dummyData = this.virtualRAM.generateData(permissionType, 3);
     
-    return {
+    // Create a response with simulated data
+    const response: PermissionResponse = {
       requestId: `dummy-${Date.now()}`,
       timestamp: new Date(),
       granted: true, // We pretend it was granted
       data: dummyData,
       message: "Permission granted with simulated data. Your privacy is protected."
     };
+    
+    // Log the simulated data to the activity log
+    this.permissionHandler.logSimulatedDataAccess(app, permissionType, dummyData);
+    
+    return response;
   }
   
   /**
@@ -138,7 +177,7 @@ class UISkinModule {
       if (!userApproved) {
         // User denied the suspicious request, but we'll provide dummy data
         console.log(`UISkinModule: User denied permission. Generating dummy data.`);
-        return this.generateDummyResponseData(permissionType);
+        return this.generateDummyResponseData(app, permissionType);
       }
     }
     

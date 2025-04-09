@@ -1,3 +1,4 @@
+
 import { 
   PermissionType, 
   App, 
@@ -130,6 +131,25 @@ class PermissionHandler {
     
     // Notify all listeners
     this.notifyLogListeners();
+  }
+  
+  /**
+   * Log simulated data access when permission is denied but dummy data is provided
+   */
+  public logSimulatedDataAccess(app: App, permissionType: PermissionType, simulatedData: any): void {
+    const logEntry: LogEntry = {
+      id: this.generateId(),
+      timestamp: new Date(),
+      requestId: `simulated-${Date.now()}`,
+      appId: app.id,
+      appName: app.name,
+      permissionType,
+      status: 'SIMULATED', // New status type for simulated data
+      data: simulatedData,
+      message: "Permission denied by user, but simulated data provided to maintain app functionality."
+    };
+    
+    this.logPermission(logEntry);
   }
   
   /**

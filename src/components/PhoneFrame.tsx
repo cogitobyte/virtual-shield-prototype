@@ -26,10 +26,11 @@ interface ConfirmationDialogProps {
   requestId: string;
   app: App | null;
   permissionType: PermissionType | null;
+  warningMessage: string;
   onOpenChange: (open: boolean) => void;
 }
 
-function ConfirmationDialog({ open, requestId, app, permissionType, onOpenChange }: ConfirmationDialogProps) {
+function ConfirmationDialog({ open, requestId, app, permissionType, warningMessage, onOpenChange }: ConfirmationDialogProps) {
   const handleApprove = () => {
     if (requestId) {
       UISkinModule.getInstance().respondToConfirmation(requestId, true);
@@ -65,7 +66,7 @@ function ConfirmationDialog({ open, requestId, app, permissionType, onOpenChange
           <AlertDialogDescription>
             <span className="font-semibold text-shield-accent">{app.name}</span> is requesting access to your <span className="font-semibold">{permissionName}</span>. 
             <div className="mt-2 bg-shield-dark/10 p-3 rounded-md text-sm">
-              This app doesn't typically need this permission to function properly. Granting it could potentially expose your data.
+              {warningMessage}
             </div>
             <div className="mt-2">
               Would you like to allow this request anyway?
@@ -87,7 +88,8 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
     open: false,
     requestId: '',
     app: null as App | null,
-    permissionType: null as PermissionType | null
+    permissionType: null as PermissionType | null,
+    warningMessage: ''
   });
   const isMobile = useIsMobile();
 
@@ -119,12 +121,14 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
       requestId: string;
       app: App;
       permissionType: PermissionType;
+      warningMessage: string;
     }>) => {
       setConfirmationDialog({
         open: true,
         requestId: event.detail.requestId,
         app: event.detail.app,
-        permissionType: event.detail.permissionType
+        permissionType: event.detail.permissionType,
+        warningMessage: event.detail.warningMessage
       });
     };
     
@@ -179,6 +183,7 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
         requestId={confirmationDialog.requestId}
         app={confirmationDialog.app}
         permissionType={confirmationDialog.permissionType}
+        warningMessage={confirmationDialog.warningMessage}
         onOpenChange={(open) => setConfirmationDialog(prev => ({ ...prev, open }))}
       />
     </div>
