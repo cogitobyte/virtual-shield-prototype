@@ -32,7 +32,6 @@ export function PermissionSelector({ onSelectPermission, isLoading }: Permission
                 </div>
                 <div className="ml-3 text-left">
                   <div className="font-medium text-sm">{details.title}</div>
-                  <div className="text-xs text-muted-foreground">{details.description}</div>
                 </div>
               </div>
             </Button>

@@ -3,13 +3,92 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Icon } from './Icon';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  AlertDialog, 
+  AlertDialogContent, 
+  AlertDialogHeader, 
+  AlertDialogTitle, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogAction, 
+  AlertDialogCancel
+} from "@/components/ui/alert-dialog";
+import { App, PermissionType } from '@/modules/types';
+import UISkinModule from '@/modules/UISkinModule';
 
 interface PhoneFrameProps {
   children: ReactNode;
 }
 
+interface ConfirmationDialogProps {
+  open: boolean;
+  requestId: string;
+  app: App | null;
+  permissionType: PermissionType | null;
+  onOpenChange: (open: boolean) => void;
+}
+
+function ConfirmationDialog({ open, requestId, app, permissionType, onOpenChange }: ConfirmationDialogProps) {
+  const handleApprove = () => {
+    if (requestId) {
+      UISkinModule.getInstance().respondToConfirmation(requestId, true);
+      onOpenChange(false);
+    }
+  };
+  
+  const handleDeny = () => {
+    if (requestId) {
+      UISkinModule.getInstance().respondToConfirmation(requestId, false);
+      onOpenChange(false);
+    }
+  };
+  
+  if (!app || !permissionType) return null;
+  
+  const permissionName = {
+    'CALL_LOGS': 'Call Logs',
+    'MESSAGES': 'Messages',
+    'FILE_ACCESS': 'File Access',
+    'CONTACTS': 'Contacts',
+    'LOCATION': 'Location'
+  }[permissionType];
+  
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="bg-background border-shield-dark/30">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center">
+            <Icon name="alertTriangle" className="h-5 w-5 text-shield-accent mr-2" />
+            Suspicious Permission Request
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            <span className="font-semibold text-shield-accent">{app.name}</span> is requesting access to your <span className="font-semibold">{permissionName}</span>. 
+            <div className="mt-2 bg-shield-dark/10 p-3 rounded-md text-sm">
+              This app doesn't typically need this permission to function properly. Granting it could potentially expose your data.
+            </div>
+            <div className="mt-2">
+              Would you like to allow this request anyway?
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleDeny}>Deny</AlertDialogCancel>
+          <AlertDialogAction onClick={handleApprove} className="bg-shield-accent hover:bg-shield-accent/80">Allow</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export function PhoneFrame({ children }: PhoneFrameProps) {
   const [dataPackets, setDataPackets] = useState<Array<{ id: number; top: number; left: number; size: number }>>([]);
+  const [confirmationDialog, setConfirmationDialog] = useState({
+    open: false,
+    requestId: '',
+    app: null as App | null,
+    permissionType: null as PermissionType | null
+  });
   const isMobile = useIsMobile();
 
   // Create animating data packets effect
@@ -32,6 +111,30 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
     }, 300);
 
     return () => clearInterval(intervalId);
+  }, []);
+  
+  // Listen for permission confirmation requests
+  useEffect(() => {
+    const handleConfirmationRequest = (event: CustomEvent<{
+      requestId: string;
+      app: App;
+      permissionType: PermissionType;
+    }>) => {
+      setConfirmationDialog({
+        open: true,
+        requestId: event.detail.requestId,
+        app: event.detail.app,
+        permissionType: event.detail.permissionType
+      });
+    };
+    
+    window.addEventListener('permission-confirmation-required', 
+      handleConfirmationRequest as EventListener);
+    
+    return () => {
+      window.removeEventListener('permission-confirmation-required', 
+        handleConfirmationRequest as EventListener);
+    };
   }, []);
 
   return (
@@ -64,9 +167,20 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
       ))}
       
       {/* Content */}
-      <div className="h-full overflow-auto p-6 pt-14">
-        {children}
-      </div>
+      <ScrollArea className="h-full pt-10">
+        <div className="p-6 pt-4">
+          {children}
+        </div>
+      </ScrollArea>
+      
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog 
+        open={confirmationDialog.open}
+        requestId={confirmationDialog.requestId}
+        app={confirmationDialog.app}
+        permissionType={confirmationDialog.permissionType}
+        onOpenChange={(open) => setConfirmationDialog(prev => ({ ...prev, open }))}
+      />
     </div>
   );
 }
