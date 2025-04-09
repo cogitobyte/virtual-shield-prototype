@@ -1,6 +1,7 @@
 
 import { App, PermissionType, PermissionRequest, PermissionResponse } from './types';
 import PermissionHandler from './PermissionHandler';
+import VirtualRAM from './VirtualRAM';
 
 // Define app categories and their required permissions
 const APP_PERMISSION_MAP: Record<string, PermissionType[]> = {
@@ -16,6 +17,7 @@ const APP_PERMISSION_MAP: Record<string, PermissionType[]> = {
 class UISkinModule {
   private static instance: UISkinModule;
   private permissionHandler: PermissionHandler;
+  private virtualRAM: VirtualRAM;
   private pendingConfirmations: Map<string, { 
     resolve: (value: boolean) => void,
     app: App,
@@ -24,6 +26,7 @@ class UISkinModule {
   
   private constructor() {
     this.permissionHandler = PermissionHandler.getInstance();
+    this.virtualRAM = VirtualRAM.getInstance();
   }
   
   public static getInstance(): UISkinModule {
@@ -99,6 +102,22 @@ class UISkinModule {
   }
   
   /**
+   * Generate dummy data for denied permissions
+   */
+  private generateDummyResponseData(permissionType: PermissionType): PermissionResponse {
+    // Generate fake data using VirtualRAM
+    const dummyData = this.virtualRAM.generateData(permissionType, 3);
+    
+    return {
+      requestId: `dummy-${Date.now()}`,
+      timestamp: new Date(),
+      granted: true, // We pretend it was granted
+      data: dummyData,
+      message: "Permission granted with simulated data. Your privacy is protected."
+    };
+  }
+  
+  /**
    * Intercepts and processes a permission request from an app
    */
   public async requestPermission(
@@ -117,14 +136,9 @@ class UISkinModule {
       const userApproved = await this.createConfirmationRequest(app, permissionType);
       
       if (!userApproved) {
-        // User denied the suspicious request
-        return {
-          requestId: `denied-${Date.now()}`,
-          timestamp: new Date(),
-          granted: false,
-          data: null,
-          message: "Permission denied by user due to suspicious request pattern."
-        };
+        // User denied the suspicious request, but we'll provide dummy data
+        console.log(`UISkinModule: User denied permission. Generating dummy data.`);
+        return this.generateDummyResponseData(permissionType);
       }
     }
     
