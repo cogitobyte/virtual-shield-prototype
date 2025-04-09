@@ -1,4 +1,3 @@
-
 // Permission Types
 export type PermissionType = 'CALL_LOGS' | 'MESSAGES' | 'FILE_ACCESS' | 'CONTACTS' | 'LOCATION';
 
@@ -36,7 +35,7 @@ export interface LogEntry {
   appId: string;
   appName: string;
   permissionType: PermissionType;
-  status: 'GRANTED' | 'DENIED';
+  status: 'GRANTED' | 'DENIED' | 'SIMULATED';
   data: any | null;
   message: string;
 }

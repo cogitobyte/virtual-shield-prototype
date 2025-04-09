@@ -1,4 +1,3 @@
-
 import { App, PermissionType, PermissionRequest, PermissionResponse } from './types';
 import PermissionHandler from './PermissionHandler';
 import VirtualRAM from './VirtualRAM';
@@ -37,17 +36,41 @@ class UISkinModule {
   }
   
   /**
+   * Determines the app category based on its ID and name
+   */
+  private getAppCategory(app: App): string {
+    if (app.id.includes('map') || app.name.toLowerCase().includes('map') || 
+        app.name.toLowerCase().includes('navigator') || app.name.toLowerCase().includes('gps')) {
+      return 'navigation';
+    } else if (app.id.includes('photo') || app.name.toLowerCase().includes('photo') || 
+               app.name.toLowerCase().includes('camera') || app.name.toLowerCase().includes('image') ||
+               app.name.toLowerCase().includes('editor')) {
+      return 'photography';
+    } else if (app.id.includes('call') || app.id.includes('message') || 
+               app.name.toLowerCase().includes('call') || app.name.toLowerCase().includes('message') ||
+               app.name.toLowerCase().includes('chat') || app.name.toLowerCase().includes('dialer')) {
+      return 'communication';
+    } else if (app.id.includes('social') || app.name.toLowerCase().includes('social') ||
+              app.name.toLowerCase().includes('connect')) {
+      return 'social';
+    } else if (app.id.includes('game') || app.name.toLowerCase().includes('game') ||
+              app.name.toLowerCase().includes('play')) {
+      return 'gaming';
+    } else if (app.id.includes('doc') || app.id.includes('note') || 
+              app.name.toLowerCase().includes('doc') || app.name.toLowerCase().includes('note') ||
+              app.name.toLowerCase().includes('office') || app.name.toLowerCase().includes('productivity')) {
+      return 'productivity';
+    } else {
+      return 'utility';
+    }
+  }
+  
+  /**
    * Checks if a permission is necessary for an app based on its category
    */
   private isPermissionSuspicious(app: App, permissionType: PermissionType): boolean {
-    // Get the category of the app (simplified for demo)
-    const appCategory = app.id.includes('photo') ? 'photography' : 
-                        app.id.includes('map') ? 'navigation' :
-                        app.id.includes('call') || app.id.includes('message') ? 'communication' :
-                        app.id.includes('social') ? 'social' :
-                        app.id.includes('game') ? 'gaming' :
-                        app.id.includes('doc') || app.id.includes('note') ? 'productivity' : 
-                        'utility';
+    // Get the category of the app
+    const appCategory = this.getAppCategory(app);
     
     // Check if the requested permission is in the list of expected permissions for this app category
     const expectedPermissions = APP_PERMISSION_MAP[appCategory] || [];
@@ -59,13 +82,7 @@ class UISkinModule {
    */
   private generateWarningMessage(app: App, permissionType: PermissionType): string {
     // Get the app category
-    const appCategory = app.id.includes('photo') ? 'photography' : 
-                        app.id.includes('map') ? 'navigation' :
-                        app.id.includes('call') || app.id.includes('message') ? 'communication' :
-                        app.id.includes('social') ? 'social' :
-                        app.id.includes('game') ? 'gaming' :
-                        app.id.includes('doc') || app.id.includes('note') ? 'productivity' : 
-                        'utility';
+    const appCategory = this.getAppCategory(app);
     
     // Generate context-appropriate warning message
     if (permissionType === 'LOCATION' && appCategory !== 'navigation') {
@@ -81,7 +98,7 @@ class UISkinModule {
     }
     
     // Default warning
-    return `This app doesn't typically need this permission to function properly. Granting it could potentially expose your data.`;
+    return `This permission request is unusual for this type of app. Granting it could potentially expose your data.`;
   }
   
   /**

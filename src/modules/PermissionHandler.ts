@@ -144,7 +144,7 @@ class PermissionHandler {
       appId: app.id,
       appName: app.name,
       permissionType,
-      status: 'SIMULATED', // New status type for simulated data
+      status: 'SIMULATED', // Now this is a valid status in our types
       data: simulatedData,
       message: "Permission denied by user, but simulated data provided to maintain app functionality."
     };
