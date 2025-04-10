@@ -71,9 +71,9 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
           </div>
         </div>
         
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col mb-3">
           <Alert 
-            className={`flex-1 mb-0 ${result.granted 
+            className={`mb-2 ${result.granted 
               ? 'border-green-500/20 bg-green-500/10 text-green-400' 
               : 'border-destructive/20 bg-destructive/10 text-destructive'}`}
           >
@@ -87,15 +87,16 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
           </Alert>
           
           {riskInfo && result.riskScore !== undefined && (
-            <Badge 
-              variant="outline" 
-              className={`ml-3 py-2 px-3 ${riskInfo.color}`}
-            >
-              <div className="flex flex-col items-center">
-                <span className="text-lg font-bold">{result.riskScore}</span>
+            <div className="flex items-center justify-end">
+              <div className="text-sm mr-2">Risk Assessment:</div>
+              <Badge 
+                variant="outline" 
+                className={`py-1 px-2 ${riskInfo.color}`}
+              >
+                <span className="font-bold mr-1">{result.riskScore}</span>
                 <span className="text-xs">{riskInfo.label}</span>
-              </div>
-            </Badge>
+              </Badge>
+            </div>
           )}
         </div>
         
@@ -127,21 +128,6 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
                   )}
                 </div>
               </ScrollArea>
-              
-              {isProcessing && (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <div 
-                    key={i}
-                    className="data-packet"
-                    style={{
-                      left: `${Math.random() * 100}%`,
-                      top: `${Math.random() * 100}%`,
-                      animationDelay: `${Math.random() * 1}s`,
-                      animationDuration: `${1 + Math.random() * 1.5}s`
-                    }}
-                  />
-                ))
-              )}
             </div>
           </div>
         )}
