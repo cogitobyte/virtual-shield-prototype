@@ -1,4 +1,5 @@
-import { App, PermissionType, PermissionRequest, PermissionResponse } from './types';
+
+import { App, PermissionType, PermissionRequest, PermissionResponse, DataFlowPath, RiskLevel } from './types';
 import PermissionHandler from './PermissionHandler';
 import VirtualRAM from './VirtualRAM';
 import AppRequirementsModule from './AppRequirementsModule';
@@ -42,6 +43,39 @@ class UISkinModule {
   }
   
   /**
+   * Creates data flow path visualizations
+   */
+  private generateDataFlowPaths(app: App, permissionType: PermissionType, isSimulated: boolean): DataFlowPath[] {
+    const paths: DataFlowPath[] = [
+      {
+        source: 'Device',
+        destination: 'Virtual Shield',
+        dataType: permissionType,
+        isVirtual: false
+      }
+    ];
+    
+    // Add path from Virtual Shield to the app
+    paths.push({
+      source: 'Virtual Shield',
+      destination: app.name,
+      dataType: permissionType,
+      isVirtual: isSimulated
+    });
+    
+    return paths;
+  }
+  
+  /**
+   * Calculates risk for a permission request
+   */
+  private calculateRisk(app: App, permissionType: PermissionType): { score: number, level: RiskLevel } {
+    const score = this.appRequirements.calculateRiskScore(app, permissionType);
+    const level = this.appRequirements.getRiskLevel(score);
+    return { score, level };
+  }
+  
+  /**
    * Creates a confirmation request that can be handled by the UI
    */
   public createConfirmationRequest(app: App, permissionType: PermissionType): Promise<boolean> {
@@ -52,9 +86,12 @@ class UISkinModule {
       // Generate contextual warning message
       const warningMessage = this.generateWarningMessage(app, permissionType);
       
+      // Calculate risk
+      const { score: riskScore, level: riskLevel } = this.calculateRisk(app, permissionType);
+      
       // This will be picked up by an event listener in the UI
       const event = new CustomEvent('permission-confirmation-required', { 
-        detail: { requestId, app, permissionType, warningMessage } 
+        detail: { requestId, app, permissionType, warningMessage, riskScore, riskLevel } 
       });
       window.dispatchEvent(event);
       
@@ -98,17 +135,26 @@ class UISkinModule {
     // Generate fake data using VirtualRAM
     const dummyData = this.virtualRAM.generateData(permissionType, 3);
     
+    // Calculate risk
+    const { score: riskScore, level: riskLevel } = this.calculateRisk(app, permissionType);
+    
+    // Generate data flow paths
+    const dataPaths = this.generateDataFlowPaths(app, permissionType, true);
+    
     // Create a response with simulated data
     const response: PermissionResponse = {
       requestId: `dummy-${Date.now()}`,
       timestamp: new Date(),
       granted: true, // We pretend it was granted
       data: dummyData,
-      message: "Permission granted with simulated data. Your privacy is protected."
+      message: "Permission granted with simulated data. Your privacy is protected.",
+      riskScore,
+      riskLevel,
+      dataPaths
     };
     
     // Log the simulated data to the activity log
-    this.permissionHandler.logSimulatedDataAccess(app, permissionType, dummyData);
+    this.permissionHandler.logSimulatedDataAccess(app, permissionType, dummyData, riskScore, riskLevel);
     
     return response;
   }
@@ -123,6 +169,10 @@ class UISkinModule {
     console.log(`UISkinModule: Intercepted permission request for ${permissionType} from app ${app.name}`);
     const appCategory = this.appRequirements.getAppCategory(app);
     console.log(`UISkinModule: App categorized as ${appCategory.name}`);
+    
+    // Calculate risk
+    const { score: riskScore, level: riskLevel } = this.calculateRisk(app, permissionType);
+    console.log(`UISkinModule: Risk assessment - Score: ${riskScore}, Level: ${riskLevel}`);
     
     // Check if this permission is suspicious for this type of app
     const isSuspicious = this.isPermissionSuspicious(app, permissionType);
@@ -142,8 +192,19 @@ class UISkinModule {
       console.log(`UISkinModule: Permission ${permissionType} is ${this.appRequirements.isPermissionRequired(app, permissionType) ? 'required' : 'optional'} for this app type.`);
     }
     
+    // Generate data flow paths
+    const dataPaths = this.generateDataFlowPaths(app, permissionType, false);
+    
     // Forward the request to the Permission Handler
-    const response = await this.permissionHandler.handlePermissionRequest(app, permissionType);
+    const baseResponse = await this.permissionHandler.handlePermissionRequest(app, permissionType);
+    
+    // Enhance response with risk data
+    const response: PermissionResponse = {
+      ...baseResponse,
+      riskScore,
+      riskLevel,
+      dataPaths
+    };
     
     console.log(`UISkinModule: Processed response: ${response.granted ? 'GRANTED' : 'DENIED'} - ${response.message}`);
     

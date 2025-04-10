@@ -1,5 +1,9 @@
+
 // Permission Types
 export type PermissionType = 'CALL_LOGS' | 'MESSAGES' | 'FILE_ACCESS' | 'CONTACTS' | 'LOCATION';
+
+// Risk Level
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
 // App Information
 export interface App {
@@ -25,6 +29,17 @@ export interface PermissionResponse {
   granted: boolean;
   data: any | null;
   message: string;
+  riskScore?: number;
+  riskLevel?: RiskLevel;
+  dataPaths?: DataFlowPath[];
+}
+
+// Data Flow Path - for visualization
+export interface DataFlowPath {
+  source: string;
+  destination: string;
+  dataType: PermissionType;
+  isVirtual: boolean;
 }
 
 // Log Entry
@@ -38,6 +53,21 @@ export interface LogEntry {
   status: 'GRANTED' | 'DENIED' | 'SIMULATED';
   data: any | null;
   message: string;
+  riskScore?: number;
+  riskLevel?: RiskLevel;
+}
+
+// Privacy Summary
+export interface PrivacySummary {
+  appId: string;
+  appName: string;
+  permissionsCounts: Record<PermissionType, {
+    granted: number;
+    denied: number;
+    simulated: number;
+  }>;
+  riskScore: number;
+  lastAccess: Date;
 }
 
 // Call Log

@@ -1,12 +1,15 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { PermissionResponse } from '@/modules/types';
+import { Badge } from '@/components/ui/badge';
+import { PermissionResponse, RiskLevel } from '@/modules/types';
 import { Icon } from '@/components/Icon';
 import { formatDistanceToNow } from 'date-fns';
+import DataFlowVisualization from './DataFlowVisualization';
 
 interface PermissionResultProps {
   result: PermissionResponse | null;
@@ -28,6 +31,22 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
     }
   }, [result]);
   
+  // Risk level colors and labels
+  const getRiskInfo = (level?: RiskLevel) => {
+    switch (level) {
+      case 'LOW':
+        return { color: 'bg-green-400/20 text-green-400 border-green-400/30', label: 'Low Risk' };
+      case 'MEDIUM':
+        return { color: 'bg-amber-400/20 text-amber-400 border-amber-400/30', label: 'Medium Risk' };
+      case 'HIGH':
+        return { color: 'bg-orange-400/20 text-orange-400 border-orange-400/30', label: 'High Risk' };
+      case 'CRITICAL':
+        return { color: 'bg-red-400/20 text-red-400 border-red-400/30', label: 'Critical Risk' };
+      default:
+        return { color: 'bg-slate-400/20 text-slate-400 border-slate-400/30', label: 'Unknown Risk' };
+    }
+  };
+  
   if (!result) {
     return (
       <Card className="border border-shield-dark/20 min-h-[300px] flex items-center justify-center">
@@ -42,6 +61,9 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
     );
   }
   
+  // Get risk info
+  const riskInfo = result.riskLevel ? getRiskInfo(result.riskLevel) : null;
+  
   return (
     <Card className="border border-shield-dark/20">
       <CardContent className="pt-6">
@@ -52,19 +74,43 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
           </div>
         </div>
         
-        <Alert 
-          className={`mb-4 ${result.granted 
-            ? 'border-green-500/20 bg-green-500/10 text-green-400' 
-            : 'border-destructive/20 bg-destructive/10 text-destructive'}`}
-        >
-          <Icon name={result.granted ? "check-circle" : "x-circle"} className="h-4 w-4" />
-          <AlertTitle className="ml-2">
-            {result.granted ? 'Permission Granted' : 'Permission Denied'}
-          </AlertTitle>
-          <AlertDescription className="ml-6 text-sm">
-            {result.message}
-          </AlertDescription>
-        </Alert>
+        <div className="flex items-center justify-between mb-3">
+          <Alert 
+            className={`flex-1 mb-0 ${result.granted 
+              ? 'border-green-500/20 bg-green-500/10 text-green-400' 
+              : 'border-destructive/20 bg-destructive/10 text-destructive'}`}
+          >
+            <Icon name={result.granted ? "check-circle" : "x-circle"} className="h-4 w-4" />
+            <AlertTitle className="ml-2">
+              {result.granted ? 'Permission Granted' : 'Permission Denied'}
+            </AlertTitle>
+            <AlertDescription className="ml-6 text-sm">
+              {result.message}
+            </AlertDescription>
+          </Alert>
+          
+          {riskInfo && result.riskScore !== undefined && (
+            <Badge 
+              variant="outline" 
+              className={`ml-3 py-2 px-3 ${riskInfo.color}`}
+            >
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold">{result.riskScore}</span>
+                <span className="text-xs">{riskInfo.label}</span>
+              </div>
+            </Badge>
+          )}
+        </div>
+        
+        {/* Data Flow Visualization */}
+        {result.dataPaths && (
+          <div className="mb-4">
+            <DataFlowVisualization 
+              dataPaths={result.dataPaths} 
+              permissionType={permissionType as any}
+            />
+          </div>
+        )}
         
         {result.granted && result.data && (
           <div className={`transition-opacity duration-500 ${isProcessing ? 'opacity-50' : 'opacity-100'}`}>

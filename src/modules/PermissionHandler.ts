@@ -4,10 +4,12 @@ import {
   App, 
   PermissionRequest, 
   PermissionResponse, 
-  LogEntry 
+  LogEntry,
+  RiskLevel 
 } from './types';
 import VirtualRAM from './VirtualRAM';
 import AIModule from './AIModule';
+import { generatePrivacySummary } from './PrivacySummaryModule';
 
 class PermissionHandler {
   private static instance: PermissionHandler;
@@ -16,6 +18,7 @@ class PermissionHandler {
   private logs: LogEntry[] = [];
   private requests: PermissionRequest[] = [];
   private listeners: Map<string, (logs: LogEntry[]) => void> = new Map();
+  private privacySummaryListeners: Map<string, (summary: any) => void> = new Map();
   
   private constructor() {
     this.virtualRAM = VirtualRAM.getInstance();
@@ -129,6 +132,9 @@ class PermissionHandler {
       this.logs = this.logs.slice(0, 100);
     }
     
+    // Generate updated privacy summary
+    this.notifyPrivacySummaryListeners();
+    
     // Notify all listeners
     this.notifyLogListeners();
   }
@@ -136,7 +142,13 @@ class PermissionHandler {
   /**
    * Log simulated data access when permission is denied but dummy data is provided
    */
-  public logSimulatedDataAccess(app: App, permissionType: PermissionType, simulatedData: any): void {
+  public logSimulatedDataAccess(
+    app: App, 
+    permissionType: PermissionType, 
+    simulatedData: any,
+    riskScore?: number,
+    riskLevel?: RiskLevel
+  ): void {
     const logEntry: LogEntry = {
       id: this.generateId(),
       timestamp: new Date(),
@@ -144,9 +156,11 @@ class PermissionHandler {
       appId: app.id,
       appName: app.name,
       permissionType,
-      status: 'SIMULATED', // Now this is a valid status in our types
+      status: 'SIMULATED',
       data: simulatedData,
-      message: "Permission denied by user, but simulated data provided to maintain app functionality."
+      message: "Permission denied by user, but simulated data provided to maintain app functionality.",
+      riskScore,
+      riskLevel
     };
     
     this.logPermission(logEntry);
@@ -187,6 +201,32 @@ class PermissionHandler {
     const logs = this.getLogs();
     this.listeners.forEach(callback => {
       callback(logs);
+    });
+  }
+  
+  /**
+   * Registers a listener for privacy summary updates
+   */
+  public addPrivacySummaryListener(id: string, callback: (summary: any) => void): void {
+    this.privacySummaryListeners.set(id, callback);
+    // Send initial summary
+    callback(generatePrivacySummary(this.logs));
+  }
+  
+  /**
+   * Removes a privacy summary listener
+   */
+  public removePrivacySummaryListener(id: string): void {
+    this.privacySummaryListeners.delete(id);
+  }
+  
+  /**
+   * Notifies all privacy summary listeners of updates
+   */
+  private notifyPrivacySummaryListeners(): void {
+    const summary = generatePrivacySummary(this.logs);
+    this.privacySummaryListeners.forEach(callback => {
+      callback(summary);
     });
   }
 }

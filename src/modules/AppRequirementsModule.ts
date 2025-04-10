@@ -1,4 +1,4 @@
-import { App, PermissionType } from './types';
+import { App, PermissionType, RiskLevel } from './types';
 
 // Define app categories and their required permissions
 export interface AppCategory {
@@ -107,6 +107,23 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
   'weather': ['weather', 'forecast', 'climate', 'temperature', 'rain', 'cloud', 'meteorology', 'storm']
 };
 
+// Risk scores for each permission type (base values)
+const PERMISSION_RISK_SCORES: Record<PermissionType, number> = {
+  'LOCATION': 75,        // High risk - can track physical movements
+  'CONTACTS': 70,        // High risk - access to personal network
+  'CALL_LOGS': 60,       // Medium-high risk - reveals communication patterns
+  'MESSAGES': 85,        // Very high risk - content of communications
+  'FILE_ACCESS': 65,     // Medium-high risk - access to personal documents
+};
+
+// Risk level thresholds
+const RISK_THRESHOLDS = {
+  LOW: 30,
+  MEDIUM: 50,
+  HIGH: 70,
+  CRITICAL: 90
+};
+
 class AppRequirementsModule {
   private static instance: AppRequirementsModule;
   
@@ -192,6 +209,36 @@ class AppRequirementsModule {
   public getAppCategory(app: App): AppCategory {
     const categoryKey = this.categorizeApp(app);
     return APP_CATEGORIES[categoryKey];
+  }
+  
+  /**
+   * Calculates the risk score for a permission request
+   */
+  public calculateRiskScore(app: App, permissionType: PermissionType): number {
+    const baseScore = PERMISSION_RISK_SCORES[permissionType];
+    
+    // Adjust score based on app category and permission relationship
+    if (this.isPermissionRequired(app, permissionType)) {
+      return Math.max(10, baseScore * 0.3); // Required permissions have lower risk
+    }
+    
+    if (this.isPermissionOptional(app, permissionType)) {
+      return baseScore * 0.6; // Optional permissions have medium risk
+    }
+    
+    // Suspicious permissions have full or higher risk
+    const trustFactor = app.trusted ? 0.8 : 1.2; // Trusted apps get a slight reduction
+    return Math.min(100, baseScore * trustFactor); // Cap at 100
+  }
+  
+  /**
+   * Determines risk level from a numerical score
+   */
+  public getRiskLevel(score: number): RiskLevel {
+    if (score < RISK_THRESHOLDS.LOW) return 'LOW';
+    if (score < RISK_THRESHOLDS.MEDIUM) return 'MEDIUM';
+    if (score < RISK_THRESHOLDS.HIGH) return 'HIGH';
+    return 'CRITICAL';
   }
   
   /**

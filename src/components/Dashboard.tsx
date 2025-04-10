@@ -8,6 +8,7 @@ import AppSelector from './AppSelector';
 import PermissionSelector from './PermissionSelector';
 import PermissionResult from './PermissionResult';
 import PermissionLog from './PermissionLog';
+import PrivacyDashboard from './PrivacyDashboard';
 import { App, PermissionType, PermissionResponse } from '@/modules/types';
 import UISkinModule from '@/modules/UISkinModule';
 import { Icon } from '@/components/Icon';
@@ -100,8 +101,8 @@ export function Dashboard() {
       {isMobile ? (
         // Mobile tabs with bottom navigation
         <>
-          <div className="px-1">
-            {activeTab === "request" ? (
+          <div className="px-1 pb-20">
+            {activeTab === "request" && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <AppSelector 
@@ -127,16 +128,18 @@ export function Dashboard() {
                   permissionType={lastPermissionType}
                 />
               </div>
-            ) : (
-              <PermissionLog />
             )}
+            
+            {activeTab === "logs" && <PermissionLog />}
+            
+            {activeTab === "dashboard" && <PrivacyDashboard />}
           </div>
           
           {/* Bottom Navigation */}
           <div className="fixed bottom-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md border-t border-border z-50 flex items-center justify-around">
             <Button 
               variant="ghost" 
-              className={`flex flex-col items-center px-0 h-full w-1/2 rounded-none ${activeTab === "request" ? "text-shield-light border-t-2 border-shield" : ""}`}
+              className={`flex flex-col items-center px-0 h-full w-1/3 rounded-none ${activeTab === "request" ? "text-shield-light border-t-2 border-shield" : ""}`}
               onClick={() => setActiveTab("request")}
             >
               <Icon name="shield" className="h-5 w-5 mb-1" />
@@ -144,7 +147,15 @@ export function Dashboard() {
             </Button>
             <Button 
               variant="ghost" 
-              className={`flex flex-col items-center px-0 h-full w-1/2 rounded-none ${activeTab === "logs" ? "text-shield-light border-t-2 border-shield" : ""}`}
+              className={`flex flex-col items-center px-0 h-full w-1/3 rounded-none ${activeTab === "dashboard" ? "text-shield-light border-t-2 border-shield" : ""}`}
+              onClick={() => setActiveTab("dashboard")}
+            >
+              <Icon name="bar-chart-4" className="h-5 w-5 mb-1" />
+              <span className="text-xs">Dashboard</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              className={`flex flex-col items-center px-0 h-full w-1/3 rounded-none ${activeTab === "logs" ? "text-shield-light border-t-2 border-shield" : ""}`}
               onClick={() => setActiveTab("logs")}
             >
               <Icon name="list" className="h-5 w-5 mb-1" />
@@ -155,10 +166,14 @@ export function Dashboard() {
       ) : (
         // Desktop tabs
         <Tabs defaultValue="request" className="space-y-4">
-          <TabsList className="grid grid-cols-2">
+          <TabsList className="grid grid-cols-3">
             <TabsTrigger value="request" className="data-[state=active]:bg-shield data-[state=active]:text-white">
               <Icon name="shield" className="h-4 w-4 mr-2" />
               Permission Manager
+            </TabsTrigger>
+            <TabsTrigger value="dashboard" className="data-[state=active]:bg-shield data-[state=active]:text-white">
+              <Icon name="bar-chart-4" className="h-4 w-4 mr-2" />
+              Privacy Dashboard
             </TabsTrigger>
             <TabsTrigger value="logs" className="data-[state=active]:bg-shield data-[state=active]:text-white">
               <Icon name="list" className="h-4 w-4 mr-2" />
@@ -194,6 +209,10 @@ export function Dashboard() {
                 />
               </div>
             </div>
+          </TabsContent>
+          
+          <TabsContent value="dashboard">
+            <PrivacyDashboard />
           </TabsContent>
           
           <TabsContent value="logs">
@@ -286,9 +305,21 @@ export function Dashboard() {
                   <span className="text-white font-medium">4</span>
                 </div>
                 <div>
-                  <h4 className="font-medium text-white">Check the logs</h4>
+                  <h4 className="font-medium text-white">Check the dashboard</h4>
                   <p className="text-sm text-gray-300">
-                    Switch to the Activity tab to see a history of all permission requests
+                    View your privacy score and detailed risk assessment for each app
+                  </p>
+                </div>
+              </li>
+              
+              <li className="flex items-start">
+                <div className="h-7 w-7 rounded-full bg-shield-secondary/90 flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                  <span className="text-white font-medium">5</span>
+                </div>
+                <div>
+                  <h4 className="font-medium text-white">Review logs</h4>
+                  <p className="text-sm text-gray-300">
+                    Check the Activity tab to see a history of all permission requests
                   </p>
                 </div>
               </li>

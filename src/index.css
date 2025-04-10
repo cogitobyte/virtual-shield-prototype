@@ -2,94 +2,172 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-
-    --card: 224 71% 4%;
-    --card-foreground: 213 31% 91%;
-
-    --popover: 224 71% 4%;
-    --popover-foreground: 213 31% 91%;
-
-    --primary: 210 100% 40%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 222 47% 11%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+ 
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+ 
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+ 
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+ 
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+ 
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+ 
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+ 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-
-    --radius: 0.75rem;
+    --destructive-foreground: 0 0% 98%;
+ 
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    
+    --shield: 211 75% 29%;
+    --shield-dark: 211 70% 14%;
+    --shield-light: 211 75% 69%;
+    --shield-secondary: 251 75% 50%;
+    --shield-accent: 151 75% 50%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
   }
 }
 
-.phone-frame {
-  position: relative;
-  width: 300px;
-  height: 600px;
-  background: linear-gradient(to bottom right, #1e3a8a, #1e40af);
-  border-radius: 36px;
-  border: 10px solid #0f172a;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-}
-
-.phone-notch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 150px;
-  height: 30px;
-  background-color: #0f172a;
-  border-radius: 0 0 16px 16px;
-  z-index: 10;
+/* Animation for data packets */
+@keyframes data-flow {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100vw);
+    opacity: 0;
+  }
 }
 
 .data-packet {
-  position: absolute;
+  @apply absolute rounded-full bg-shield-accent;
   width: 8px;
   height: 8px;
-  background-color: #60a5fa;
-  border-radius: 50%;
-  opacity: 0.8;
+  animation: data-flow 2s linear infinite;
 }
 
-.process-animation {
-  background: linear-gradient(90deg, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.3), rgba(96, 165, 250, 0.1));
+/* Pulse animation for opacity */
+@keyframes pulse-opacity {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-pulse-opacity {
+  animation: pulse-opacity 2s infinite;
+}
+
+/* Processing animation background */
+.process-animation::before {
+  content: '';
+  @apply absolute inset-0 bg-shield-dark/5 pointer-events-none;
+  background-image: 
+    linear-gradient(to right, transparent, rgba(var(--shield-accent) / 0.05), transparent);
   background-size: 200% 100%;
-  animation: shimmer 2s infinite linear;
+  animation: shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {
   0% {
-    background-position: 100% 0;
+    background-position: -100% 0;
   }
   100% {
-    background-position: -100% 0;
+    background-position: 100% 0;
+  }
+}
+
+/* Data flow line */
+.data-flow-line {
+  @apply h-0.5 bg-shield-light/20 my-8;
+  position: relative;
+  overflow: hidden;
+}
+
+.data-flow-line:after {
+  content: '';
+  @apply absolute top-0 bottom-0 left-0 right-0 bg-shield-accent;
+  animation: data-line-flow 2s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+@keyframes data-line-flow {
+  0%, 100% {
+    transform: scaleX(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* Data packet flow animation for visualization */
+.data-packet-flow {
+  @apply absolute top-1/2 left-0 w-full -translate-y-1/2;
+  height: 2px;
+  overflow: hidden;
+}
+
+.data-packet-flow .data-packet {
+  @apply absolute h-2 w-2 rounded-full bg-shield-accent;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: packet-flow 3s linear infinite;
+}
+
+.data-packet-flow .data-packet:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.data-packet-flow .data-packet:nth-child(3) {
+  animation-delay: 2s;
+}
+
+@keyframes packet-flow {
+  0% {
+    left: -10px;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% + 10px);
+    opacity: 0;
   }
 }
