@@ -4,12 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PermissionResponse, RiskLevel } from '@/modules/types';
 import { Icon } from '@/components/Icon';
 import { formatDistanceToNow } from 'date-fns';
-import DataFlowVisualization from './DataFlowVisualization';
 
 interface PermissionResultProps {
   result: PermissionResponse | null;
@@ -18,7 +16,6 @@ interface PermissionResultProps {
 
 export function PermissionResult({ result, permissionType }: PermissionResultProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [autoScroll, setAutoScroll] = useState(true);
   
   useEffect(() => {
     if (result) {
@@ -102,98 +99,34 @@ export function PermissionResult({ result, permissionType }: PermissionResultPro
           )}
         </div>
         
-        {/* Data Flow Visualization */}
-        {result.dataPaths && (
-          <div className="mb-4">
-            <DataFlowVisualization 
-              dataPaths={result.dataPaths} 
-              permissionType={permissionType as any}
-            />
-          </div>
-        )}
-        
         {result.granted && result.data && (
           <div className={`transition-opacity duration-500 ${isProcessing ? 'opacity-50' : 'opacity-100'}`}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div 
-                  className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-green-400 animate-pulse-opacity' : 'bg-green-400'}`}
-                />
-                <h4 className="font-medium">Generated Virtual Data</h4>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-xs flex items-center gap-1 bg-shield-light/10 hover:bg-shield-light/20 border-shield-light/30"
-                onClick={() => setAutoScroll(!autoScroll)}
-              >
-                <Icon name={autoScroll ? "mouse-pointer-click" : "mouse"} className="h-3 w-3" />
-                {autoScroll ? "Auto-Scroll: On" : "Auto-Scroll: Off"}
-              </Button>
+            <div className="flex items-center mb-2">
+              <div 
+                className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-green-400 animate-pulse-opacity' : 'bg-green-400'}`}
+              />
+              <h4 className="font-medium ml-2">Generated Virtual Data</h4>
             </div>
             
             <div className={`relative border border-shield-dark/20 rounded-md ${isProcessing ? 'process-animation' : ''}`}>
-              <div className="bg-shield-dark/10 px-3 py-2 rounded-t-md flex justify-between items-center border-b border-shield-dark/20">
-                <span className="text-xs font-medium text-shield-light">Scroll Controls</span>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="h-6 text-xs text-shield-light hover:text-shield-accent flex items-center gap-1"
-                  onClick={() => {
-                    const scrollContainer = document.querySelector('.scroll-content');
-                    if (scrollContainer) {
-                      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                  }}
-                >
-                  <Icon name="chevrons-up" className="h-3 w-3" />
-                  <span className="font-semibold">Scroll to top</span>
-                </Button>
-              </div>
-            
-              <div className="relative">
-                <ScrollArea className={`h-[240px] rounded-b-md ${autoScroll ? 'overflow-auto' : ''}`}>
-                  <div className="p-3 text-sm scroll-content">
-                    {Array.isArray(result.data) ? (
-                      result.data.map((item, index) => (
-                        <div key={item.id || index} className="mb-3">
-                          <div className="font-mono bg-shield-dark/30 p-2 rounded-md overflow-x-auto">
-                            <pre className="text-xs">{JSON.stringify(item, null, 2)}</pre>
-                          </div>
-                          {index < result.data.length - 1 && <Separator className="my-3" />}
+              <ScrollArea className="h-[240px] rounded-md">
+                <div className="p-3 text-sm">
+                  {Array.isArray(result.data) ? (
+                    result.data.map((item, index) => (
+                      <div key={item.id || index} className="mb-3">
+                        <div className="font-mono bg-shield-dark/30 p-2 rounded-md overflow-x-auto">
+                          <pre className="text-xs">{JSON.stringify(item, null, 2)}</pre>
                         </div>
-                      ))
-                    ) : (
-                      <div className="font-mono bg-shield-dark/30 p-2 rounded-md overflow-x-auto">
-                        <pre className="text-xs">{JSON.stringify(result.data, null, 2)}</pre>
+                        {index < result.data.length - 1 && <Separator className="my-3" />}
                       </div>
-                    )}
-                  </div>
-                </ScrollArea>
-                
-                <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex flex-col items-center gap-1 text-shield-light/70 pointer-events-none">
-                  <Icon name="chevron-up" className="h-3 w-3" />
-                  <Icon name="chevron-down" className="h-3 w-3" />
+                    ))
+                  ) : (
+                    <div className="font-mono bg-shield-dark/30 p-2 rounded-md overflow-x-auto">
+                      <pre className="text-xs">{JSON.stringify(result.data, null, 2)}</pre>
+                    </div>
+                  )}
                 </div>
-              </div>
-              
-              <div className="bg-shield-dark/10 px-3 py-2 rounded-b-md flex justify-between items-center border-t border-shield-dark/20">
-                <span className="text-xs text-shield-light/70">Use your mouse wheel or touchpad to scroll</span>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="h-6 text-xs text-shield-light hover:text-shield-accent flex items-center gap-1"
-                  onClick={() => {
-                    const scrollContainer = document.querySelector('.scroll-content');
-                    if (scrollContainer) {
-                      scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
-                    }
-                  }}
-                >
-                  <Icon name="chevrons-down" className="h-3 w-3" />
-                  <span className="font-semibold">Scroll to bottom</span>
-                </Button>
-              </div>
+              </ScrollArea>
               
               {isProcessing && (
                 Array.from({ length: 5 }).map((_, i) => (
