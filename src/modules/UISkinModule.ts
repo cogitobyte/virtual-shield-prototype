@@ -1,22 +1,13 @@
 import { App, PermissionType, PermissionRequest, PermissionResponse } from './types';
 import PermissionHandler from './PermissionHandler';
 import VirtualRAM from './VirtualRAM';
-
-// Define app categories and their required permissions
-const APP_PERMISSION_MAP: Record<string, PermissionType[]> = {
-  'social': ['CONTACTS', 'MESSAGES'],
-  'communication': ['CONTACTS', 'MESSAGES', 'CALL_LOGS'],
-  'navigation': ['LOCATION'],
-  'photography': ['FILE_ACCESS'],
-  'productivity': ['FILE_ACCESS', 'CONTACTS'],
-  'gaming': [],
-  'utility': []
-};
+import AppRequirementsModule from './AppRequirementsModule';
 
 class UISkinModule {
   private static instance: UISkinModule;
   private permissionHandler: PermissionHandler;
   private virtualRAM: VirtualRAM;
+  private appRequirements: AppRequirementsModule;
   private pendingConfirmations: Map<string, { 
     resolve: (value: boolean) => void,
     app: App,
@@ -26,6 +17,7 @@ class UISkinModule {
   private constructor() {
     this.permissionHandler = PermissionHandler.getInstance();
     this.virtualRAM = VirtualRAM.getInstance();
+    this.appRequirements = AppRequirementsModule.getInstance();
   }
   
   public static getInstance(): UISkinModule {
@@ -36,69 +28,17 @@ class UISkinModule {
   }
   
   /**
-   * Determines the app category based on its ID and name
-   */
-  private getAppCategory(app: App): string {
-    if (app.id.includes('map') || app.name.toLowerCase().includes('map') || 
-        app.name.toLowerCase().includes('navigator') || app.name.toLowerCase().includes('gps')) {
-      return 'navigation';
-    } else if (app.id.includes('photo') || app.name.toLowerCase().includes('photo') || 
-               app.name.toLowerCase().includes('camera') || app.name.toLowerCase().includes('image') ||
-               app.name.toLowerCase().includes('editor')) {
-      return 'photography';
-    } else if (app.id.includes('call') || app.id.includes('message') || 
-               app.name.toLowerCase().includes('call') || app.name.toLowerCase().includes('message') ||
-               app.name.toLowerCase().includes('chat') || app.name.toLowerCase().includes('dialer')) {
-      return 'communication';
-    } else if (app.id.includes('social') || app.name.toLowerCase().includes('social') ||
-              app.name.toLowerCase().includes('connect')) {
-      return 'social';
-    } else if (app.id.includes('game') || app.name.toLowerCase().includes('game') ||
-              app.name.toLowerCase().includes('play')) {
-      return 'gaming';
-    } else if (app.id.includes('doc') || app.id.includes('note') || 
-              app.name.toLowerCase().includes('doc') || app.name.toLowerCase().includes('note') ||
-              app.name.toLowerCase().includes('office') || app.name.toLowerCase().includes('productivity')) {
-      return 'productivity';
-    } else {
-      return 'utility';
-    }
-  }
-  
-  /**
-   * Checks if a permission is necessary for an app based on its category
+   * Checks if a permission is suspicious for an app based on its category
    */
   private isPermissionSuspicious(app: App, permissionType: PermissionType): boolean {
-    // Get the category of the app
-    const appCategory = this.getAppCategory(app);
-    
-    // Check if the requested permission is in the list of expected permissions for this app category
-    const expectedPermissions = APP_PERMISSION_MAP[appCategory] || [];
-    return !expectedPermissions.includes(permissionType);
+    return this.appRequirements.isPermissionSuspicious(app, permissionType);
   }
   
   /**
    * Generates a contextual warning message for a permission request
    */
   private generateWarningMessage(app: App, permissionType: PermissionType): string {
-    // Get the app category
-    const appCategory = this.getAppCategory(app);
-    
-    // Generate context-appropriate warning message
-    if (permissionType === 'LOCATION' && appCategory !== 'navigation') {
-      return `This ${appCategory} app doesn't typically need location data to function properly. Sharing your location may allow the app to track your movements.`;
-    } else if (permissionType === 'CONTACTS' && !['social', 'communication', 'productivity'].includes(appCategory)) {
-      return `This ${appCategory} app doesn't normally require access to your contacts. Granting this permission could expose your personal network.`;
-    } else if (permissionType === 'FILE_ACCESS' && !['photography', 'productivity'].includes(appCategory)) {
-      return `This ${appCategory} app doesn't typically need access to your files. Granting this permission could allow access to your personal documents and media.`;
-    } else if (permissionType === 'CALL_LOGS' && appCategory !== 'communication') {
-      return `This ${appCategory} app doesn't usually need your call history. Granting this permission could expose your communication patterns.`;
-    } else if (permissionType === 'MESSAGES' && !['social', 'communication'].includes(appCategory)) {
-      return `This ${appCategory} app doesn't typically need access to your messages. Granting this permission could compromise private conversations.`;
-    }
-    
-    // Default warning
-    return `This permission request is unusual for this type of app. Granting it could potentially expose your data.`;
+    return this.appRequirements.generateWarningMessage(app, permissionType);
   }
   
   /**
@@ -181,6 +121,8 @@ class UISkinModule {
     permissionType: PermissionType
   ): Promise<PermissionResponse> {
     console.log(`UISkinModule: Intercepted permission request for ${permissionType} from app ${app.name}`);
+    const appCategory = this.appRequirements.getAppCategory(app);
+    console.log(`UISkinModule: App categorized as ${appCategory.name}`);
     
     // Check if this permission is suspicious for this type of app
     const isSuspicious = this.isPermissionSuspicious(app, permissionType);
@@ -196,6 +138,8 @@ class UISkinModule {
         console.log(`UISkinModule: User denied permission. Generating dummy data.`);
         return this.generateDummyResponseData(app, permissionType);
       }
+    } else {
+      console.log(`UISkinModule: Permission ${permissionType} is ${this.appRequirements.isPermissionRequired(app, permissionType) ? 'required' : 'optional'} for this app type.`);
     }
     
     // Forward the request to the Permission Handler

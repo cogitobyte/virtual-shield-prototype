@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { App, PermissionType } from '@/modules/types';
 import UISkinModule from '@/modules/UISkinModule';
+import AppRequirementsModule from '@/modules/AppRequirementsModule';
+import { Badge } from '@/components/ui/badge';
 
 interface PhoneFrameProps {
   children: ReactNode;
@@ -31,6 +33,15 @@ interface ConfirmationDialogProps {
 }
 
 function ConfirmationDialog({ open, requestId, app, permissionType, warningMessage, onOpenChange }: ConfirmationDialogProps) {
+  const [appCategory, setAppCategory] = useState<string>('');
+  
+  useEffect(() => {
+    if (app) {
+      const category = AppRequirementsModule.getInstance().getAppCategory(app);
+      setAppCategory(category.name);
+    }
+  }, [app]);
+  
   const handleApprove = () => {
     if (requestId) {
       UISkinModule.getInstance().respondToConfirmation(requestId, true);
@@ -63,8 +74,12 @@ function ConfirmationDialog({ open, requestId, app, permissionType, warningMessa
             <Icon name="alertTriangle" className="h-5 w-5 text-shield-accent mr-2" />
             Suspicious Permission Request
           </AlertDialogTitle>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-semibold text-shield-accent">{app.name}</span> 
+            <Badge variant="outline" className="bg-shield-dark/10">{appCategory} App</Badge>
+          </div>
           <AlertDialogDescription>
-            <span className="font-semibold text-shield-accent">{app.name}</span> is requesting access to your <span className="font-semibold">{permissionName}</span>. 
+            This app is requesting access to your <span className="font-semibold">{permissionName}</span>. 
             <div className="mt-2 bg-shield-dark/10 p-3 rounded-md text-sm">
               {warningMessage}
             </div>
