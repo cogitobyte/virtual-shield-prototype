@@ -9,6 +9,7 @@ import PermissionSelector from './PermissionSelector';
 import PermissionResult from './PermissionResult';
 import PermissionLog from './PermissionLog';
 import PrivacyDashboard from './PrivacyDashboard';
+import InstallationDemo from './InstallationDemo';
 import { App, PermissionType, PermissionResponse } from '@/modules/types';
 import UISkinModule from '@/modules/UISkinModule';
 import { Icon } from '@/components/Icon';
@@ -20,18 +21,27 @@ export function Dashboard() {
   const [permissionResult, setPermissionResult] = useState<PermissionResponse | null>(null);
   const [lastPermissionType, setLastPermissionType] = useState<PermissionType | null>(null);
   const [activeTab, setActiveTab] = useState("request");
-  const [showHelp, setShowHelp] = useState(false);
+  const [showHelp, setShowHelp] = useState(true);
+  const [showDemo, setShowDemo] = useState(true);
   const isMobile = useIsMobile();
   
   // First-time user guide
   useEffect(() => {
-    // Check if first visit to show help
+    // Store first visit in localStorage
     const hasVisited = localStorage.getItem('virtualShield_hasVisited');
     if (!hasVisited) {
-      // Don't show help sheet immediately - let the PhoneFrame handle first-time flow
-      setTimeout(() => {
-        setShowHelp(true);
-      }, 8000); // Show help after the initial permission flow
+      setShowHelp(true);
+      localStorage.setItem('virtualShield_hasVisited', 'true');
+    } else {
+      setShowHelp(false);
+    }
+    
+    // Check if demo has been viewed
+    const demoViewed = localStorage.getItem('virtualShield_demoViewed');
+    if (!demoViewed) {
+      setShowDemo(true);
+    } else {
+      setShowDemo(false);
     }
   }, []);
   
@@ -55,7 +65,7 @@ export function Dashboard() {
     setLastPermissionType(permissionType);
     
     try {
-      // Process through the UISkinModule
+      // Delay to simulate processing
       const uiSkinModule = UISkinModule.getInstance();
       const response = await uiSkinModule.requestPermission(selectedApp, permissionType);
       
@@ -80,6 +90,36 @@ export function Dashboard() {
     }
   };
   
+  const handleCompleteDemoView = () => {
+    setShowDemo(false);
+    localStorage.setItem('virtualShield_demoViewed', 'true');
+  };
+  
+  // If demo is shown, only display the demo
+  if (showDemo) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-shield to-shield-dark flex items-center justify-center">
+              <Icon name="shield" className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-left">
+              <h2 className="text-xl font-bold tracking-tight">Virtual Shield</h2>
+              <p className="text-xs text-muted-foreground">Privacy-focused management</p>
+            </div>
+          </div>
+          
+          <Button variant="outline" size="sm" onClick={handleCompleteDemoView}>
+            Skip
+          </Button>
+        </div>
+        
+        <InstallationDemo onComplete={handleCompleteDemoView} />
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -91,6 +131,16 @@ export function Dashboard() {
             <h2 className="text-xl font-bold tracking-tight">Virtual Shield</h2>
             <p className="text-xs text-muted-foreground">Privacy-focused management</p>
           </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowDemo(true)}>
+            <Icon name="play" className="h-4 w-4 mr-1" /> 
+            View Protection Flow
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+            <Icon name="helpCircle" size={20} className="text-shield-accent" />
+          </Button>
         </div>
       </div>
       

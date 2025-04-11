@@ -1,17 +1,100 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Icon } from './Icon';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  AlertDialog, 
+  AlertDialogContent, 
+  AlertDialogHeader, 
+  AlertDialogTitle, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogAction, 
+  AlertDialogCancel
+} from "@/components/ui/alert-dialog";
 import { App, PermissionType } from '@/modules/types';
 import UISkinModule from '@/modules/UISkinModule';
-import { Icon } from './Icon';
-import { toast } from '@/components/ui/use-toast';
-import { ConfirmationDialog } from './ConfirmationDialog';
-import { FloatingShieldIcon } from './FloatingShieldIcon';
-import { AppPermissionDialog } from './AppPermissionDialog';
+import AppRequirementsModule from '@/modules/AppRequirementsModule';
+import { Badge } from '@/components/ui/badge';
 
 interface PhoneFrameProps {
   children: ReactNode;
+}
+
+interface ConfirmationDialogProps {
+  open: boolean;
+  requestId: string;
+  app: App | null;
+  permissionType: PermissionType | null;
+  warningMessage: string;
+  onOpenChange: (open: boolean) => void;
+}
+
+function ConfirmationDialog({ open, requestId, app, permissionType, warningMessage, onOpenChange }: ConfirmationDialogProps) {
+  const [appCategory, setAppCategory] = useState<string>('');
+  
+  useEffect(() => {
+    if (app) {
+      const category = AppRequirementsModule.getInstance().getAppCategory(app);
+      setAppCategory(category.name);
+    }
+  }, [app]);
+  
+  const handleApprove = () => {
+    if (requestId) {
+      UISkinModule.getInstance().respondToConfirmation(requestId, true);
+      onOpenChange(false);
+    }
+  };
+  
+  const handleDeny = () => {
+    if (requestId) {
+      UISkinModule.getInstance().respondToConfirmation(requestId, false);
+      onOpenChange(false);
+    }
+  };
+  
+  if (!app || !permissionType) return null;
+  
+  const permissionName = {
+    'CALL_LOGS': 'Call Logs',
+    'MESSAGES': 'Messages',
+    'FILE_ACCESS': 'File Access',
+    'CONTACTS': 'Contacts',
+    'LOCATION': 'Location'
+  }[permissionType];
+  
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="bg-background border-shield-dark/30">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center">
+            <Icon name="alertTriangle" className="h-5 w-5 text-shield-accent mr-2" />
+            Suspicious Permission Request
+          </AlertDialogTitle>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-semibold text-shield-accent">{app.name}</span> 
+            <Badge variant="outline" className="bg-shield-dark/10">{appCategory} App</Badge>
+          </div>
+          <AlertDialogDescription>
+            This app is requesting access to your <span className="font-semibold">{permissionName}</span>. 
+            <div className="mt-2 bg-shield-dark/10 p-3 rounded-md text-sm">
+              {warningMessage}
+            </div>
+            <div className="mt-2">
+              Would you like to allow this request anyway?
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleDeny}>Deny</AlertDialogCancel>
+          <AlertDialogAction onClick={handleApprove} className="bg-shield-accent hover:bg-shield-accent/80">Allow</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }
 
 export function PhoneFrame({ children }: PhoneFrameProps) {
@@ -23,28 +106,7 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
     permissionType: null as PermissionType | null,
     warningMessage: ''
   });
-  const [appLaunched, setAppLaunched] = useState(false);
-  const [showFloatingIcon, setShowFloatingIcon] = useState(false);
-  const [shieldActivated, setShieldActivated] = useState(false);
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    // Auto-launch the app permission flow for first-time users
-    const hasVisited = localStorage.getItem('virtualShield_hasVisited');
-    if (!hasVisited) {
-      setTimeout(() => {
-        setAppLaunched(true);
-        
-        // Show floating icon after a delay
-        setTimeout(() => {
-          setShowFloatingIcon(true);
-        }, 1500);
-      }, 1000);
-    } else {
-      // Already seen the demo, so shield is already active
-      setShieldActivated(true);
-    }
-  }, []);
 
   // Create animating data packets effect
   useEffect(() => {
@@ -94,36 +156,6 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
     };
   }, []);
 
-  const handleActivateShield = () => {
-    setShieldActivated(true);
-    setShowFloatingIcon(false);
-    
-    // Create an actual log entry in the system through UISkinModule
-    const demoApp = {
-      id: 'demo-social-app',
-      name: 'Social Media App',
-      icon: 'instagram',
-      trusted: false
-    };
-    
-    const uiSkinModule = UISkinModule.getInstance();
-    
-    // Process a real permission request to create logs
-    uiSkinModule.requestPermission(demoApp, 'CONTACTS')
-      .then(() => {
-        toast({
-          title: "Virtual Shield Active",
-          description: "Your privacy is now being protected",
-        });
-        
-        // Set visited flag for future visits
-        localStorage.setItem('virtualShield_hasVisited', 'true');
-      })
-      .catch(error => {
-        console.error('Error activating shield:', error);
-      });
-  };
-
   return (
     <div className={`relative ${isMobile ? "w-full" : "w-[900px] max-h-[700px]"} bg-gradient-to-br from-shield-dark to-black rounded-lg border border-gray-800 shadow-lg overflow-hidden`}>
       {/* Status bar */}
@@ -152,15 +184,6 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
           }}
         />
       ))}
-      
-      {/* App permission dialog */}
-      <AppPermissionDialog 
-        visible={appLaunched && !shieldActivated} 
-        onClose={() => setAppLaunched(false)} 
-      />
-      
-      {/* Floating shield icon */}
-      <FloatingShieldIcon visible={showFloatingIcon} onClick={handleActivateShield} />
       
       {/* Content */}
       <ScrollArea className="h-full pt-10">
