@@ -111,7 +111,7 @@ export function Dashboard() {
           </div>
           
           <Button variant="outline" size="sm" onClick={handleCompleteDemoView}>
-            Skip Demo
+            Skip
           </Button>
         </div>
         
@@ -136,7 +136,7 @@ export function Dashboard() {
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setShowDemo(true)}>
             <Icon name="play" className="h-4 w-4 mr-1" /> 
-            View Demo
+            View Protection Flow
           </Button>
           <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
             <Icon name="helpCircle" size={20} className="text-shield-accent" />

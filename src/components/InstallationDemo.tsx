@@ -11,45 +11,15 @@ interface InstallationDemoProps {
 }
 
 export function InstallationDemo({ onComplete }: InstallationDemoProps) {
-  const [stage, setStage] = useState<'start' | 'installing' | 'installed' | 'permission' | 'shield-active' | 'complete'>('start');
+  const [stage, setStage] = useState<'start' | 'app-open' | 'permission' | 'shield-active' | 'complete'>('start');
   const [progress, setProgress] = useState(0);
-  
-  // Handle installation progress
-  useEffect(() => {
-    if (stage === 'installing') {
-      const timer = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(timer);
-            setStage('installed');
-            return 100;
-          }
-          return prev + 5;
-        });
-      }, 150);
-      
-      return () => clearInterval(timer);
-    }
-  }, [stage]);
-  
-  // Auto advance after installed
-  useEffect(() => {
-    if (stage === 'installed') {
-      const timer = setTimeout(() => {
-        setStage('permission');
-      }, 1500);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [stage]);
   
   // Progress bar based on current stage
   const getStageProgress = () => {
     switch (stage) {
       case 'start': return 0;
-      case 'installing': return progress;
-      case 'installed': return 100;
-      case 'permission': return 100;
+      case 'app-open': return 33;
+      case 'permission': return 66;
       case 'shield-active': return 100;
       case 'complete': return 100;
       default: return 0;
@@ -57,7 +27,12 @@ export function InstallationDemo({ onComplete }: InstallationDemoProps) {
   };
   
   const handleStartDemo = () => {
-    setStage('installing');
+    setStage('app-open');
+    
+    // Auto advance to permission request after showing the app
+    setTimeout(() => {
+      setStage('permission');
+    }, 1500);
   };
   
   const handlePermissionResponse = () => {
@@ -76,9 +51,9 @@ export function InstallationDemo({ onComplete }: InstallationDemoProps) {
         <div className="mb-4">
           <Progress value={getStageProgress()} className="h-2" />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>Download</span>
-            <span>Install</span>
-            <span>Setup</span>
+            <span>Open App</span>
+            <span>Permission Request</span>
+            <span>VDC Protection</span>
             <span>Complete</span>
           </div>
         </div>
@@ -88,49 +63,29 @@ export function InstallationDemo({ onComplete }: InstallationDemoProps) {
           {stage === 'start' && (
             <div className="text-center space-y-6">
               <div className="h-24 w-24 mx-auto bg-shield/10 rounded-xl border border-shield/20 flex items-center justify-center">
-                <Icon name="shield" className="h-12 w-12 text-shield-light" />
+                <Icon name="smartphone" className="h-12 w-12 text-shield-light" />
               </div>
               <div>
                 <h3 className="text-xl font-semibold mb-2">See Virtual Shield in Action</h3>
                 <p className="text-muted-foreground mb-6">
-                  This demo will show you how Virtual Shield works from installation to handling app permissions.
+                  See how Virtual Shield protects your privacy when apps request permissions to your data.
                 </p>
                 <Button onClick={handleStartDemo} className="bg-shield hover:bg-shield-secondary">
-                  Start Demo
+                  Start
                 </Button>
               </div>
             </div>
           )}
           
-          {stage === 'installing' && (
+          {stage === 'app-open' && (
             <div className="text-center space-y-4">
               <Card className="border border-shield-dark/20 p-6 w-64 mx-auto">
                 <CardContent className="p-0 flex flex-col items-center">
-                  <div className="mb-4 h-16 w-16 bg-shield/10 rounded-lg flex items-center justify-center">
-                    <Icon name="shield" className="h-8 w-8 text-shield-light" />
+                  <div className="mb-4 h-16 w-16 bg-gray-200 rounded-xl flex items-center justify-center">
+                    <span className="text-black text-lg font-bold">APP</span>
                   </div>
-                  <h3 className="font-medium">Virtual Shield</h3>
-                  <p className="text-xs text-muted-foreground mb-4">Privacy Protection</p>
-                  <Progress value={progress} className="h-1.5 w-full" />
-                  <p className="text-xs mt-2">Installing... {progress}%</p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-          
-          {stage === 'installed' && (
-            <div className="text-center space-y-4">
-              <Card className="border border-shield-dark/20 p-6 w-64 mx-auto">
-                <CardContent className="p-0 flex flex-col items-center">
-                  <div className="mb-4 h-16 w-16 bg-shield/10 rounded-lg flex items-center justify-center">
-                    <Icon name="shield" className="h-8 w-8 text-shield-light" />
-                  </div>
-                  <h3 className="font-medium">Virtual Shield</h3>
-                  <p className="text-xs text-muted-foreground mb-4">Privacy Protection</p>
-                  <div className="bg-green-500/20 text-green-500 py-1 px-3 rounded-full text-xs">
-                    <Icon name="check" className="h-3 w-3 inline mr-1" />
-                    Installation Complete
-                  </div>
+                  <h3 className="font-medium">Social Media App</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Opening app...</p>
                 </CardContent>
               </Card>
             </div>
@@ -223,10 +178,10 @@ export function InstallationDemo({ onComplete }: InstallationDemoProps) {
                 <Icon name="check" className="h-8 w-8 text-shield-accent" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Demo Complete</h3>
+                <h3 className="text-xl font-semibold mb-2">Privacy Protected</h3>
                 <p className="text-muted-foreground mb-6">
-                  You've seen how Virtual Shield protects your privacy by intercepting permission requests
-                  and providing virtual data instead of your real information.
+                  Virtual Shield has protected your privacy by providing virtual data
+                  instead of your real information.
                 </p>
                 <Button onClick={onComplete} className="bg-shield hover:bg-shield-secondary">
                   Continue to Virtual Shield
