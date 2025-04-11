@@ -14,11 +14,15 @@ class UISkinModule {
     app: App,
     permissionType: PermissionType
   }> = new Map();
+  private firstLaunch: boolean = true;
   
   private constructor() {
     this.permissionHandler = PermissionHandler.getInstance();
     this.virtualRAM = VirtualRAM.getInstance();
     this.appRequirements = AppRequirementsModule.getInstance();
+    
+    // Check if this is first launch
+    this.firstLaunch = !localStorage.getItem('virtualShield_hasVisited');
   }
   
   public static getInstance(): UISkinModule {
@@ -26,6 +30,21 @@ class UISkinModule {
       UISkinModule.instance = new UISkinModule();
     }
     return UISkinModule.instance;
+  }
+  
+  /**
+   * Checks if this is the first time the app is launched
+   */
+  public isFirstLaunch(): boolean {
+    return this.firstLaunch;
+  }
+  
+  /**
+   * Marks the app as visited
+   */
+  public markAsVisited(): void {
+    this.firstLaunch = false;
+    localStorage.setItem('virtualShield_hasVisited', 'true');
   }
   
   /**
