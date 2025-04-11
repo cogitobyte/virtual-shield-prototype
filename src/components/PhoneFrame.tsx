@@ -14,6 +14,7 @@ import {
   AlertDialogAction, 
   AlertDialogCancel
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button"; // Adding the missing Button import
 import { App, PermissionType } from '@/modules/types';
 import UISkinModule from '@/modules/UISkinModule';
 import AppRequirementsModule from '@/modules/AppRequirementsModule';
