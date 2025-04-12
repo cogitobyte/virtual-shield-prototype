@@ -99,20 +99,6 @@
   animation: shimmer 1.5s infinite;
 }
 
-/* Shimmer animation for button effect */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.animate-shimmer {
-  animation: shimmer 2s infinite;
-}
-
 @keyframes shimmer {
   0% {
     background-position: -100% 0;

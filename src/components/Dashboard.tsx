@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import PermissionSelector from './PermissionSelector';
 import PermissionResult from './PermissionResult';
 import PermissionLog from './PermissionLog';
 import PrivacyDashboard from './PrivacyDashboard';
+import InstallationDemo from './InstallationDemo';
 import { App, PermissionType, PermissionResponse } from '@/modules/types';
 import UISkinModule from '@/modules/UISkinModule';
 import { Icon } from '@/components/Icon';
@@ -21,6 +21,7 @@ export function Dashboard() {
   const [lastPermissionType, setLastPermissionType] = useState<PermissionType | null>(null);
   const [activeTab, setActiveTab] = useState("request");
   const [showHelp, setShowHelp] = useState(true);
+  const [showDemo, setShowDemo] = useState(true);
   const isMobile = useIsMobile();
   
   // First-time user guide
@@ -33,6 +34,9 @@ export function Dashboard() {
     } else {
       setShowHelp(false);
     }
+    
+    // Set demo to be initially shown by default now
+    setShowDemo(true);
   }, []);
   
   const handleSelectApp = (app: App) => {
@@ -79,6 +83,35 @@ export function Dashboard() {
       setIsLoading(false);
     }
   };
+  
+  const handleCompleteDemoView = () => {
+    setShowDemo(false);
+  };
+  
+  // If demo is shown, only display the demo
+  if (showDemo) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-shield to-shield-dark flex items-center justify-center">
+              <Icon name="shield" className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-left">
+              <h2 className="text-xl font-bold tracking-tight">Virtual Shield</h2>
+              <p className="text-xs text-muted-foreground">Privacy-focused management</p>
+            </div>
+          </div>
+          
+          <Button variant="outline" size="sm" onClick={handleCompleteDemoView}>
+            Continue to Shield
+          </Button>
+        </div>
+        
+        <InstallationDemo onComplete={handleCompleteDemoView} />
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
