@@ -21,7 +21,7 @@ const Index = () => {
         // Mobile view - just show the tablet directly
         <div className="pt-4 px-4 pb-20">
           <PhoneFrame>
-            <Dashboard />
+            {showShield ? <Dashboard /> : null}
           </PhoneFrame>
         </div>
       ) : (
@@ -89,13 +89,7 @@ const Index = () => {
               <div className="absolute -top-6 -right-6 h-12 w-12 rounded-full bg-shield-accent/30 animate-pulse"></div>
               <div className="absolute -bottom-6 -left-6 h-12 w-12 rounded-full bg-shield-light/30 animate-pulse delay-700"></div>
               <PhoneFrame>
-                {showShield ? <Dashboard /> : <div className="flex items-center justify-center h-full flex-col p-4 text-center">
-                  <Icon name="shield" className="h-20 w-20 text-shield-light/40 mb-4" />
-                  <h3 className="text-xl font-semibold text-shield-light">Virtual Shield Prototype</h3>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Click "Continue to Shield" to explore the Virtual Shield interface
-                  </p>
-                </div>}
+                {showShield && <Dashboard />}
               </PhoneFrame>
             </div>
           </div>
