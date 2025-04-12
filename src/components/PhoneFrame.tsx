@@ -4,7 +4,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Icon } from './Icon';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ConfirmationDialog } from './ConfirmationDialog';
-import { FloatingShieldIcon } from './FloatingShieldIcon';
+import { FloatingShieldButton } from './FloatingShieldButton';
 import { App, PermissionType } from '@/modules/types';
 import UISkinModule from '@/modules/UISkinModule';
 
@@ -63,15 +63,15 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
         </div>
       </div>
       
-      {/* Data packet animations */}
-      <FloatingShieldIcon />
-      
       {/* Content */}
       <ScrollArea className="h-full pt-10">
         <div className="p-6 pt-4">
           {children}
         </div>
       </ScrollArea>
+      
+      {/* Floating Shield Button */}
+      <FloatingShieldButton />
       
       {/* Confirmation Dialog */}
       <ConfirmationDialog 

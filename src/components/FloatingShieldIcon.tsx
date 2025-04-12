@@ -8,7 +8,11 @@ interface DataPacket {
   size: number;
 }
 
-export function FloatingShieldIcon() {
+interface FloatingShieldIconProps {
+  onClick?: () => void;
+}
+
+export function FloatingShieldIcon({ onClick }: FloatingShieldIconProps) {
   const [dataPackets, setDataPackets] = useState<Array<DataPacket>>([]);
 
   // Create animating data packets effect

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -36,13 +35,8 @@ export function Dashboard() {
       setShowHelp(false);
     }
     
-    // Check if demo has been viewed
-    const demoViewed = localStorage.getItem('virtualShield_demoViewed');
-    if (!demoViewed) {
-      setShowDemo(true);
-    } else {
-      setShowDemo(false);
-    }
+    // Set demo to be initially shown by default now
+    setShowDemo(true);
   }, []);
   
   const handleSelectApp = (app: App) => {
@@ -92,7 +86,6 @@ export function Dashboard() {
   
   const handleCompleteDemoView = () => {
     setShowDemo(false);
-    localStorage.setItem('virtualShield_demoViewed', 'true');
   };
   
   // If demo is shown, only display the demo
@@ -111,7 +104,7 @@ export function Dashboard() {
           </div>
           
           <Button variant="outline" size="sm" onClick={handleCompleteDemoView}>
-            Skip
+            Continue to Shield
           </Button>
         </div>
         
@@ -133,15 +126,9 @@ export function Dashboard() {
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowDemo(true)}>
-            <Icon name="play" className="h-4 w-4 mr-1" /> 
-            View Protection Flow
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
-            <Icon name="helpCircle" size={20} className="text-shield-accent" />
-          </Button>
-        </div>
+        <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+          <Icon name="helpCircle" size={20} className="text-shield-accent" />
+        </Button>
       </div>
       
       {isMobile ? (
