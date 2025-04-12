@@ -3,9 +3,17 @@ import Dashboard from '@/components/Dashboard';
 import PhoneFrame from '@/components/PhoneFrame';
 import { Icon } from '@/components/Icon';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 const Index = () => {
   const isMobile = useIsMobile();
+  const [showShield, setShowShield] = useState(false);
+  
+  const handleContinueToShield = () => {
+    setShowShield(true);
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black overflow-x-hidden">
@@ -63,6 +71,13 @@ const Index = () => {
                   <p className="text-sm leading-relaxed">Intelligent system that detects suspicious permission patterns and validates legitimate requests.</p>
                 </div>
               </div>
+              
+              <Button 
+                onClick={handleContinueToShield}
+                className="w-full bg-shield hover:bg-shield-secondary transition-colors"
+              >
+                Continue to Shield
+              </Button>
             </div>
           </div>
           
@@ -74,11 +89,26 @@ const Index = () => {
               <div className="absolute -top-6 -right-6 h-12 w-12 rounded-full bg-shield-accent/30 animate-pulse"></div>
               <div className="absolute -bottom-6 -left-6 h-12 w-12 rounded-full bg-shield-light/30 animate-pulse delay-700"></div>
               <PhoneFrame>
-                <Dashboard />
+                {showShield ? <Dashboard /> : <div className="flex items-center justify-center h-full flex-col p-4 text-center">
+                  <Icon name="shield" className="h-20 w-20 text-shield-light/40 mb-4" />
+                  <h3 className="text-xl font-semibold text-shield-light">Virtual Shield Prototype</h3>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Click "Continue to Shield" to explore the Virtual Shield interface
+                  </p>
+                </div>}
               </PhoneFrame>
             </div>
           </div>
         </div>
+      )}
+      
+      {/* Allow opening the Shield via button in mobile view */}
+      {isMobile && (
+        <Sheet open={showShield} onOpenChange={setShowShield}>
+          <SheetContent side="bottom" className="h-[95vh] p-0 rounded-t-xl">
+            <Dashboard />
+          </SheetContent>
+        </Sheet>
       )}
     </div>
   );
