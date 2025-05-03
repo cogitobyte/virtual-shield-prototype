@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -9,11 +8,13 @@ import PermissionSelector from './PermissionSelector';
 import PermissionResult from './PermissionResult';
 import PermissionLog from './PermissionLog';
 import PrivacyDashboard from './PrivacyDashboard';
-import InstallationDemo from './InstallationDemo';
 import { App, PermissionType, PermissionResponse } from '@/modules/types';
 import UISkinModule from '@/modules/UISkinModule';
 import { Icon } from '@/components/Icon';
 import { useIsMobile } from '@/hooks/use-mobile';
+import PermissionRequestDialog from './PermissionRequestDialog';
+import VirtualShieldPrompt from './VirtualShieldPrompt';
+import InstallationDemo from './InstallationDemo';
 
 export function Dashboard() {
   const [selectedApp, setSelectedApp] = useState<App | null>(null);
@@ -22,6 +23,8 @@ export function Dashboard() {
   const [lastPermissionType, setLastPermissionType] = useState<PermissionType | null>(null);
   const [activeTab, setActiveTab] = useState("request");
   const [showHelp, setShowHelp] = useState(true);
+  const [showPermissionRequest, setShowPermissionRequest] = useState(false);
+  const [showVirtualShieldPrompt, setShowVirtualShieldPrompt] = useState(false);
   const [showDemo, setShowDemo] = useState(true);
   const isMobile = useIsMobile();
   
@@ -35,7 +38,7 @@ export function Dashboard() {
     } else {
       setShowHelp(false);
     }
-    
+
     // Check if demo has been viewed
     const demoViewed = localStorage.getItem('virtualShield_demoViewed');
     if (!demoViewed) {
@@ -61,13 +64,23 @@ export function Dashboard() {
       return;
     }
     
-    setIsLoading(true);
     setLastPermissionType(permissionType);
     
+    // Show system permission request dialog first
+    setShowPermissionRequest(true);
+  };
+  
+  const handleAllowPermission = async () => {
+    setShowPermissionRequest(false);
+    
+    if (!selectedApp || !lastPermissionType) return;
+    
+    setIsLoading(true);
+    
     try {
-      // Delay to simulate processing
+      // Process the permission through the UISkinModule
       const uiSkinModule = UISkinModule.getInstance();
-      const response = await uiSkinModule.requestPermission(selectedApp, permissionType);
+      const response = await uiSkinModule.requestPermission(selectedApp, lastPermissionType);
       
       // Set the result
       setPermissionResult(response);
@@ -90,11 +103,47 @@ export function Dashboard() {
     }
   };
   
+  const handleDenyPermission = () => {
+    setShowPermissionRequest(false);
+    // Show Virtual Shield prompt after denying permission
+    setShowVirtualShieldPrompt(true);
+  };
+  
+  const handleOpenVirtualShield = () => {
+    setShowVirtualShieldPrompt(false);
+    // Here we would proceed with Virtual Shield's protection
+    if (!selectedApp || !lastPermissionType) return;
+    
+    setIsLoading(true);
+    
+    // Process with Virtual Shield (simulated data)
+    const uiSkinModule = UISkinModule.getInstance();
+    uiSkinModule.requestPermission(selectedApp, lastPermissionType)
+      .then(response => {
+        setPermissionResult(response);
+        toast({
+          title: "Virtual Shield Active",
+          description: "Using simulated data to protect your privacy",
+        });
+      })
+      .catch(error => {
+        console.error('Error processing with Virtual Shield:', error);
+        toast({
+          title: "Error",
+          description: "An error occurred while processing with Virtual Shield",
+          variant: "destructive"
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   const handleCompleteDemoView = () => {
     setShowDemo(false);
     localStorage.setItem('virtualShield_demoViewed', 'true');
   };
-  
+
   // If demo is shown, only display the demo
   if (showDemo) {
     return (
@@ -109,12 +158,12 @@ export function Dashboard() {
               <p className="text-xs text-muted-foreground">Privacy-focused management</p>
             </div>
           </div>
-          
+
           <Button variant="outline" size="sm" onClick={handleCompleteDemoView}>
             Skip
           </Button>
         </div>
-        
+
         <InstallationDemo onComplete={handleCompleteDemoView} />
       </div>
     );
@@ -145,7 +194,6 @@ export function Dashboard() {
       </div>
       
       {isMobile ? (
-        // Mobile tabs with bottom navigation
         <>
           <div className="px-1 pb-20">
             {activeTab === "request" && (
@@ -211,7 +259,7 @@ export function Dashboard() {
         </>
       ) : (
         // Desktop tabs
-        <Tabs defaultValue="request" className="space-y-4">
+        <Tabs defaultValue="request" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid grid-cols-3">
             <TabsTrigger value="request" className="data-[state=active]:bg-shield data-[state=active]:text-white">
               <Icon name="shield" className="h-4 w-4 mr-2" />
@@ -380,6 +428,23 @@ export function Dashboard() {
           </div>
         </SheetContent>
       </Sheet>
+      
+      {/* Permission Request Dialog */}
+      <PermissionRequestDialog
+        open={showPermissionRequest}
+        onOpenChange={setShowPermissionRequest}
+        app={selectedApp}
+        permissionType={lastPermissionType}
+        onAllow={handleAllowPermission}
+        onDeny={handleDenyPermission}
+      />
+      
+      {/* Virtual Shield Prompt */}
+      <VirtualShieldPrompt
+        open={showVirtualShieldPrompt}
+        onOpenChange={setShowVirtualShieldPrompt}
+        onOpenDashboard={handleOpenVirtualShield}
+      />
     </div>
   );
 }
