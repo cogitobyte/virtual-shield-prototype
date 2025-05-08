@@ -1,3 +1,4 @@
+
 import { App, PermissionType, PermissionRequest, PermissionResponse, DataFlowPath, RiskLevel } from './types';
 import PermissionHandler from './PermissionHandler';
 import VirtualRAM from './VirtualRAM';
@@ -128,6 +129,16 @@ class UISkinModule {
   }
   
   /**
+   * Trigger the demo floating icon
+   */
+  public triggerFloatingIconDemo(app: App, permissionType: PermissionType): void {
+    const event = new CustomEvent('vs-show-floating-icon', { 
+      detail: { app, permissionType } 
+    });
+    window.dispatchEvent(event);
+  }
+  
+  /**
    * Generate dummy data for denied permissions
    */
   private generateDummyResponseData(app: App, permissionType: PermissionType): PermissionResponse {
@@ -167,17 +178,14 @@ class UISkinModule {
   ): Promise<PermissionResponse> {
     console.log(`UISkinModule: Intercepted permission request for ${permissionType} from app ${app.name}`);
     
-    // Trigger floating icon demo if requested via event
+    // For the demo flow, check if we should show the floating icon
     const showFloatingIcon = sessionStorage.getItem('vs_showFloatingIconDemo') === 'true';
     if (showFloatingIcon) {
       // Clear the flag
       sessionStorage.removeItem('vs_showFloatingIconDemo');
       
-      // Create a demo event that will be picked up by the UI
-      const event = new CustomEvent('vs-show-floating-icon', { 
-        detail: { app, permissionType } 
-      });
-      window.dispatchEvent(event);
+      // Trigger the floating icon demo
+      this.triggerFloatingIconDemo(app, permissionType);
       
       // Return a simulated response
       return this.generateDummyResponseData(app, permissionType);

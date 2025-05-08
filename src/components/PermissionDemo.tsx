@@ -15,57 +15,44 @@ interface PermissionDemoProps {
 const demoApp: App = {
   id: 'demo-app-1',
   name: 'Social Media App',
-  publisher: 'Demo Apps Inc.',
   installedDate: new Date(),
   lastUpdated: new Date(),
   version: '1.0.0',
   permissions: ['CONTACTS', 'LOCATION'],
   description: 'A social media app for connecting with friends and sharing updates.',
   category: 'social',
-  icon: '📱'
+  icon: '📱',
+  trusted: false // Adding the required trusted property
 };
 
 export function PermissionDemo({ onComplete, onOpenDashboard }: PermissionDemoProps) {
-  const [step, setStep] = useState(0);
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
-  const [showVirtualShield, setShowVirtualShield] = useState(false);
   const [showFloatingIcon, setShowFloatingIcon] = useState(false);
   
-  // Progress through demo steps
+  // Show permission dialog when component mounts
   useEffect(() => {
-    if (step === 0) {
-      // Start the demo by showing the system permission dialog after a delay
-      const timer = setTimeout(() => {
-        setShowPermissionDialog(true);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [step]);
+    const timer = setTimeout(() => {
+      setShowPermissionDialog(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Handle permission denial
+  // Handle permission denial - show floating icon
   const handleDenyPermission = () => {
     setShowPermissionDialog(false);
     toast({
       title: "Permission Denied",
-      description: "You've denied access to your contacts",
+      description: "Permission was denied. The app may have limited functionality.",
       variant: "destructive"
     });
     
-    // Show the Virtual Shield prompt after a delay
-    setTimeout(() => {
-      setShowVirtualShield(true);
-    }, 1500);
-  };
-  
-  // Handle Shield cancellation to show floating icon
-  const handleShieldCancel = () => {
-    setShowVirtualShield(false);
+    // Show the floating Virtual Shield icon after a delay
     setTimeout(() => {
       setShowFloatingIcon(true);
     }, 1000);
   };
   
-  // Skip demo
+  // Handle skipping the demo
   const handleSkip = () => {
     onComplete();
   };
@@ -81,17 +68,15 @@ export function PermissionDemo({ onComplete, onOpenDashboard }: PermissionDemoPr
         <div className="space-y-4 text-gray-300">
           <p>
             This demo shows how Virtual Shield protects your privacy when apps 
-            request permissions. The app will request access to your contacts.
+            request permissions.
           </p>
           
-          {step === 0 && (
-            <div className="flex flex-col items-center py-10 text-center space-y-6">
-              <div className="h-16 w-16 bg-shield/30 rounded-full flex items-center justify-center animate-pulse">
-                <Icon name="smartphone" className="h-8 w-8 text-shield-light" />
-              </div>
-              <p className="text-lg">App is starting...</p>
+          <div className="flex flex-col items-center py-10 text-center space-y-6">
+            <div className="h-16 w-16 bg-shield/30 rounded-full flex items-center justify-center animate-pulse">
+              <Icon name="smartphone" className="h-8 w-8 text-shield-light" />
             </div>
-          )}
+            <p className="text-lg">App is requesting permissions...</p>
+          </div>
           
           <div className="flex justify-between mt-6">
             <Button variant="outline" onClick={handleSkip}>
@@ -105,7 +90,7 @@ export function PermissionDemo({ onComplete, onOpenDashboard }: PermissionDemoPr
         </div>
       </div>
       
-      {/* Permission Request Dialog */}
+      {/* Permission Request Dialog - System Style */}
       <PermissionRequestDialog
         open={showPermissionDialog}
         onOpenChange={setShowPermissionDialog}
@@ -113,19 +98,9 @@ export function PermissionDemo({ onComplete, onOpenDashboard }: PermissionDemoPr
         permissionType={"CONTACTS" as PermissionType}
         onAllow={() => {
           setShowPermissionDialog(false);
-          onComplete(); // Skip to the end of demo on allow
+          onComplete(); // End demo if permission is allowed
         }}
         onDeny={handleDenyPermission}
-      />
-      
-      {/* Virtual Shield Prompt */}
-      <VirtualShieldPrompt
-        open={showVirtualShield}
-        onOpenChange={(open) => {
-          setShowVirtualShield(open);
-          if (!open) handleShieldCancel();
-        }}
-        onOpenDashboard={onOpenDashboard}
       />
       
       {/* Floating Virtual Shield Icon */}

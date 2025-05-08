@@ -21,14 +21,6 @@ interface PermissionRequestDialogProps {
   onDeny: () => void;
 }
 
-const permissionTypeNames: Record<PermissionType, string> = {
-  'CALL_LOGS': 'Call Logs',
-  'MESSAGES': 'Messages',
-  'FILE_ACCESS': 'Files',
-  'CONTACTS': 'Contacts',
-  'LOCATION': 'Location'
-};
-
 const PermissionRequestDialog = ({ 
   open, 
   onOpenChange, 
@@ -39,8 +31,6 @@ const PermissionRequestDialog = ({
 }: PermissionRequestDialogProps) => {
   if (!app || !permissionType) return null;
   
-  const permissionName = permissionTypeNames[permissionType];
-  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white text-black border-0 shadow-xl">
@@ -49,10 +39,10 @@ const PermissionRequestDialog = ({
             <div className="p-2 bg-gray-100 rounded-full">
               <Icon name="shield" className="h-5 w-5 text-gray-500" />
             </div>
-            <DialogTitle className="text-lg">{app.name} wants to access your {permissionName}</DialogTitle>
+            <DialogTitle className="text-lg">Permission Request</DialogTitle>
           </div>
           <DialogDescription className="pt-2 text-gray-600">
-            This app needs access to your {permissionName.toLowerCase()} to provide its services. You can change this permission in your settings at any time.
+            This app requires certain permissions to function properly. You can manage these permissions in your device settings.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">

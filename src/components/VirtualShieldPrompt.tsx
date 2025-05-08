@@ -29,10 +29,11 @@ const VirtualShieldPrompt = ({
   if (isFloatingMode) {
     return (
       <div 
-        className={`fixed bottom-10 right-10 z-50 cursor-pointer transition-all duration-300 ${open ? 'scale-100' : 'scale-0'}`}
+        className={`fixed bottom-10 right-10 z-50 cursor-pointer transition-all duration-500 ${open ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
         onClick={onOpenDashboard}
+        title="Open Virtual Shield Dashboard"
       >
-        <div className="h-16 w-16 bg-shield rounded-full flex items-center justify-center shadow-lg animate-pulse">
+        <div className="h-16 w-16 bg-shield rounded-full flex items-center justify-center shadow-lg hover:bg-shield-accent transition-colors">
           <div className="h-12 w-12 bg-shield/80 rounded-full flex items-center justify-center absolute animate-ping opacity-75" />
           <Icon name="shield" className="h-8 w-8 text-white" />
         </div>
