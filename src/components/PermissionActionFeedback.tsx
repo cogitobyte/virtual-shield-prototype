@@ -68,7 +68,7 @@ export function PermissionActionFeedback({
           className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50"
           transition={{ type: 'spring', damping: 15 }}
         >
-          <div className="flex items-center space-x-2 rounded-full px-4 py-2 shadow-lg">
+          <div className="flex items-center space-x-2 rounded-full px-4 py-2 shadow-lg bg-white">
             <div className={`${getColor()} p-2 rounded-full`}>
               <Icon name={getIcon()} className="h-5 w-5 text-white" />
             </div>

@@ -15,6 +15,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import PermissionRequestDialog from './PermissionRequestDialog';
 import VirtualShieldPrompt from './VirtualShieldPrompt';
 import PermissionDemo from './PermissionDemo';
+import CustomizableDashboard from './CustomizableDashboard';
 
 export function Dashboard() {
   const [selectedApp, setSelectedApp] = useState<App | null>(null);
