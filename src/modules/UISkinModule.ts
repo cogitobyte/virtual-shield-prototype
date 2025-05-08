@@ -1,4 +1,3 @@
-
 import { App, PermissionType, PermissionRequest, PermissionResponse, DataFlowPath, RiskLevel } from './types';
 import PermissionHandler from './PermissionHandler';
 import VirtualRAM from './VirtualRAM';
@@ -167,6 +166,23 @@ class UISkinModule {
     permissionType: PermissionType
   ): Promise<PermissionResponse> {
     console.log(`UISkinModule: Intercepted permission request for ${permissionType} from app ${app.name}`);
+    
+    // Trigger floating icon demo if requested via event
+    const showFloatingIcon = sessionStorage.getItem('vs_showFloatingIconDemo') === 'true';
+    if (showFloatingIcon) {
+      // Clear the flag
+      sessionStorage.removeItem('vs_showFloatingIconDemo');
+      
+      // Create a demo event that will be picked up by the UI
+      const event = new CustomEvent('vs-show-floating-icon', { 
+        detail: { app, permissionType } 
+      });
+      window.dispatchEvent(event);
+      
+      // Return a simulated response
+      return this.generateDummyResponseData(app, permissionType);
+    }
+    
     const appCategory = this.appRequirements.getAppCategory(app);
     console.log(`UISkinModule: App categorized as ${appCategory.name}`);
     

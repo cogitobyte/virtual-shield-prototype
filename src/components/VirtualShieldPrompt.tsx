@@ -16,13 +16,31 @@ interface VirtualShieldPromptProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOpenDashboard: () => void;
+  isFloatingMode?: boolean;
 }
 
 const VirtualShieldPrompt = ({ 
   open, 
   onOpenChange, 
-  onOpenDashboard 
+  onOpenDashboard,
+  isFloatingMode = false
 }: VirtualShieldPromptProps) => {
+  // For floating icon mode
+  if (isFloatingMode) {
+    return (
+      <div 
+        className={`fixed bottom-10 right-10 z-50 cursor-pointer transition-all duration-300 ${open ? 'scale-100' : 'scale-0'}`}
+        onClick={onOpenDashboard}
+      >
+        <div className="h-16 w-16 bg-shield rounded-full flex items-center justify-center shadow-lg animate-pulse">
+          <div className="h-12 w-12 bg-shield/80 rounded-full flex items-center justify-center absolute animate-ping opacity-75" />
+          <Icon name="shield" className="h-8 w-8 text-white" />
+        </div>
+      </div>
+    );
+  }
+  
+  // Standard dialog mode
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="bg-gradient-to-b from-shield-dark to-background rounded-lg border border-shield-dark/30">

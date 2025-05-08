@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ import { Icon } from '@/components/Icon';
 import { useIsMobile } from '@/hooks/use-mobile';
 import PermissionRequestDialog from './PermissionRequestDialog';
 import VirtualShieldPrompt from './VirtualShieldPrompt';
-import InstallationDemo from './InstallationDemo';
+import PermissionDemo from './PermissionDemo';
 
 export function Dashboard() {
   const [selectedApp, setSelectedApp] = useState<App | null>(null);
@@ -26,6 +27,7 @@ export function Dashboard() {
   const [showPermissionRequest, setShowPermissionRequest] = useState(false);
   const [showVirtualShieldPrompt, setShowVirtualShieldPrompt] = useState(false);
   const [showDemo, setShowDemo] = useState(true);
+  const [showFloatingIcon, setShowFloatingIcon] = useState(false);
   const isMobile = useIsMobile();
   
   // First-time user guide
@@ -46,6 +48,22 @@ export function Dashboard() {
     } else {
       setShowDemo(false);
     }
+    
+    // Listen for floating icon event
+    const handleFloatingIconEvent = (event: CustomEvent<{
+      app: App;
+      permissionType: PermissionType;
+    }>) => {
+      setShowFloatingIcon(true);
+    };
+    
+    window.addEventListener('vs-show-floating-icon', 
+      handleFloatingIconEvent as EventListener);
+    
+    return () => {
+      window.removeEventListener('vs-show-floating-icon', 
+        handleFloatingIconEvent as EventListener);
+    };
   }, []);
   
   const handleSelectApp = (app: App) => {
@@ -111,6 +129,7 @@ export function Dashboard() {
   
   const handleOpenVirtualShield = () => {
     setShowVirtualShieldPrompt(false);
+    setShowFloatingIcon(false);
     // Here we would proceed with Virtual Shield's protection
     if (!selectedApp || !lastPermissionType) return;
     
@@ -164,7 +183,10 @@ export function Dashboard() {
           </Button>
         </div>
 
-        <InstallationDemo onComplete={handleCompleteDemoView} />
+        <PermissionDemo onComplete={handleCompleteDemoView} onOpenDashboard={() => {
+          handleCompleteDemoView();
+          setActiveTab("request");
+        }} />
       </div>
     );
   }
@@ -183,7 +205,11 @@ export function Dashboard() {
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowDemo(true)}>
+          <Button variant="outline" size="sm" onClick={() => {
+            setShowDemo(true);
+            // Set flag for floating icon demo
+            sessionStorage.setItem('vs_showFloatingIconDemo', 'true');
+          }}>
             <Icon name="play" className="h-4 w-4 mr-1" /> 
             View Protection Flow
           </Button>
@@ -444,6 +470,14 @@ export function Dashboard() {
         open={showVirtualShieldPrompt}
         onOpenChange={setShowVirtualShieldPrompt}
         onOpenDashboard={handleOpenVirtualShield}
+      />
+      
+      {/* Floating Virtual Shield Icon */}
+      <VirtualShieldPrompt
+        open={showFloatingIcon}
+        onOpenChange={setShowFloatingIcon}
+        onOpenDashboard={handleOpenVirtualShield}
+        isFloatingMode={true}
       />
     </div>
   );
