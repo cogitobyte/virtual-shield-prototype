@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -252,7 +251,7 @@ export function Dashboard() {
             
             {activeTab === "logs" && <PermissionLog />}
             
-            {activeTab === "dashboard" && <PrivacyDashboard />}
+            {activeTab === "dashboard" && <CustomizableDashboard />}
           </div>
           
           {/* Bottom Navigation */}
@@ -332,7 +331,7 @@ export function Dashboard() {
           </TabsContent>
           
           <TabsContent value="dashboard">
-            <PrivacyDashboard />
+            <CustomizableDashboard />
           </TabsContent>
           
           <TabsContent value="logs">

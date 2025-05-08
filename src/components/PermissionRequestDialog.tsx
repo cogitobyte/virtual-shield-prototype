@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { 
   Dialog, 
   DialogContent, 
@@ -21,6 +22,40 @@ interface PermissionRequestDialogProps {
   onDeny: () => void;
 }
 
+const getPermissionIcon = (permissionType: PermissionType): string => {
+  switch (permissionType) {
+    case 'CONTACTS':
+      return 'users';
+    case 'LOCATION':
+      return 'map-pin';
+    case 'FILE_ACCESS':
+      return 'folder';
+    case 'CALL_LOGS':
+      return 'phone';
+    case 'MESSAGES':
+      return 'message-square';
+    default:
+      return 'shield';
+  }
+};
+
+const getPermissionDescription = (permissionType: PermissionType): string => {
+  switch (permissionType) {
+    case 'CONTACTS':
+      return 'access your contacts';
+    case 'LOCATION':
+      return 'access your location';
+    case 'FILE_ACCESS':
+      return 'access your files';
+    case 'CALL_LOGS':
+      return 'access your call history';
+    case 'MESSAGES':
+      return 'access your messages';
+    default:
+      return 'access your data';
+  }
+};
+
 const PermissionRequestDialog = ({ 
   open, 
   onOpenChange, 
@@ -31,28 +66,54 @@ const PermissionRequestDialog = ({
 }: PermissionRequestDialogProps) => {
   if (!app || !permissionType) return null;
   
+  const iconName = getPermissionIcon(permissionType);
+  const permissionDesc = getPermissionDescription(permissionType);
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white text-black border-0 shadow-xl">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gray-100 rounded-full">
-              <Icon name="shield" className="h-5 w-5 text-gray-500" />
+      <DialogContent className="bg-white text-black border-0 shadow-xl max-w-md mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <DialogHeader className="items-center text-center">
+            <div className="p-3 bg-gray-100 rounded-full mx-auto mb-4">
+              <Icon name={iconName} className="h-8 w-8 text-gray-600" />
             </div>
-            <DialogTitle className="text-lg">Permission Request</DialogTitle>
+            <DialogTitle className="text-xl font-semibold">Permission Request</DialogTitle>
+            <DialogDescription className="pt-2 text-gray-600 max-w-sm mx-auto">
+              <span className="font-semibold">{app.name}</span> would like to {permissionDesc}. This app requires certain permissions to function properly.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="my-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+            <div className="flex items-start space-x-3">
+              <div className="p-1.5 bg-gray-200 rounded-md mt-0.5">
+                <Icon name="info" className="h-4 w-4 text-gray-600" />
+              </div>
+              <div className="text-sm text-gray-600">
+                <p>You can manage app permissions in your device settings at any time.</p>
+              </div>
+            </div>
           </div>
-          <DialogDescription className="pt-2 text-gray-600">
-            This app requires certain permissions to function properly. You can manage these permissions in your device settings.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" className="w-full sm:w-auto" onClick={onDeny}>
-            Don't Allow
-          </Button>
-          <Button className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600" onClick={onAllow}>
-            Allow
-          </Button>
-        </DialogFooter>
+          
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-center pt-2">
+            <Button 
+              variant="outline" 
+              className="w-full sm:w-auto border-gray-300" 
+              onClick={onDeny}
+            >
+              Don't Allow
+            </Button>
+            <Button 
+              className="w-full sm:w-auto bg-shield hover:bg-shield-dark" 
+              onClick={onAllow}
+            >
+              Allow
+            </Button>
+          </DialogFooter>
+        </motion.div>
       </DialogContent>
     </Dialog>
   );
