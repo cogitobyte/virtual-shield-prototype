@@ -1,6 +1,5 @@
-
 // Permission Types
-export type PermissionType = 'CALL_LOGS' | 'MESSAGES' | 'FILE_ACCESS' | 'CONTACTS' | 'LOCATION';
+export type PermissionType = 'CONTACTS' | 'LOCATION' | 'FILE_ACCESS' | 'CALL_LOGS' | 'MESSAGES' | 'GENERAL';
 
 // Risk Level
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';

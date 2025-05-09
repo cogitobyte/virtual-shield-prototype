@@ -17,12 +17,12 @@ interface PermissionRequestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   app: App | null;
-  permissionType: PermissionType | null;
+  permissionType: PermissionType | null | 'GENERAL';
   onAllow: () => void;
   onDeny: () => void;
 }
 
-const getPermissionIcon = (permissionType: PermissionType): string => {
+const getPermissionIcon = (permissionType: PermissionType | 'GENERAL'): string => {
   switch (permissionType) {
     case 'CONTACTS':
       return 'users';
@@ -34,12 +34,14 @@ const getPermissionIcon = (permissionType: PermissionType): string => {
       return 'phone';
     case 'MESSAGES':
       return 'message-square';
+    case 'GENERAL':
+      return 'shield';
     default:
       return 'shield';
   }
 };
 
-const getPermissionDescription = (permissionType: PermissionType): string => {
+const getPermissionDescription = (permissionType: PermissionType | 'GENERAL'): string => {
   switch (permissionType) {
     case 'CONTACTS':
       return 'access your contacts';
@@ -51,6 +53,8 @@ const getPermissionDescription = (permissionType: PermissionType): string => {
       return 'access your call history';
     case 'MESSAGES':
       return 'access your messages';
+    case 'GENERAL':
+      return 'use certain permissions to function properly';
     default:
       return 'access your data';
   }
@@ -69,6 +73,11 @@ const PermissionRequestDialog = ({
   const iconName = getPermissionIcon(permissionType);
   const permissionDesc = getPermissionDescription(permissionType);
   
+  // Use specific messaging for GENERAL permission
+  const generalMessage = permissionType === 'GENERAL' 
+    ? "This app requires certain permissions to function properly. You can manage these permissions in your device settings."
+    : `${app.name} would like to ${permissionDesc}. This app requires certain permissions to function properly.`;
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white text-black border-0 shadow-xl max-w-md mx-auto">
@@ -83,7 +92,7 @@ const PermissionRequestDialog = ({
             </div>
             <DialogTitle className="text-xl font-semibold">Permission Request</DialogTitle>
             <DialogDescription className="pt-2 text-gray-600 max-w-sm mx-auto">
-              <span className="font-semibold">{app.name}</span> would like to {permissionDesc}. This app requires certain permissions to function properly.
+              {generalMessage}
             </DialogDescription>
           </DialogHeader>
           
