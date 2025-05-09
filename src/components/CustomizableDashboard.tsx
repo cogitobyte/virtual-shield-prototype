@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Icon } from '@/components/Icon';
+import RealTimePrivacyDashboard from './RealTimePrivacyDashboard';
 
 interface DashboardWidget {
   id: string;
@@ -17,6 +18,14 @@ interface DashboardWidget {
 
 export function CustomizableDashboard() {
   const [availableWidgets, setAvailableWidgets] = useState<DashboardWidget[]>([
+    {
+      id: 'real-time',
+      title: 'Real-Time Monitor',
+      icon: 'activity',
+      enabled: true,
+      description: 'View permission access in real-time',
+      component: <RealTimePrivacyDashboard />
+    },
     {
       id: 'privacy-score',
       title: 'Privacy Score',
@@ -211,9 +220,16 @@ export function CustomizableDashboard() {
           variant="ghost" 
           size="sm" 
           onClick={() => setIsCustomizing(!isCustomizing)}
+          className="group"
         >
-          <Icon name="settings" className="h-4 w-4 mr-2" />
-          {isCustomizing ? 'Done' : 'Customize'}
+          <motion.div
+            animate={isCustomizing ? { rotate: 180 } : { rotate: 0 }}
+            transition={{ duration: 0.3 }}
+            className="inline-flex items-center"
+          >
+            <Icon name="settings" className="h-4 w-4 mr-2 group-hover:animate-spin" />
+            {isCustomizing ? 'Done' : 'Customize'}
+          </motion.div>
         </Button>
       </div>
       
@@ -257,22 +273,24 @@ export function CustomizableDashboard() {
                 onDrop={() => handleDrop(widget.id)}
                 onDragEnd={handleDragEnd}
                 whileDrag={{ scale: 1.05, zIndex: 10, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
-                className={`cursor-grab active:cursor-grabbing ${isDragging && draggedWidget === widget.id ? 'opacity-50' : ''}`}
+                className={`cursor-grab active:cursor-grabbing ${isDragging && draggedWidget === widget.id ? 'opacity-50' : ''} ${widget.id === 'real-time' ? 'md:col-span-2' : ''}`}
               >
                 <Card className="overflow-hidden">
-                  <div className="bg-shield/10 p-3 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="h-6 w-6 rounded-md bg-shield/20 flex items-center justify-center mr-2">
-                        <Icon name={widget.icon as any} className="h-3 w-3 text-shield-dark" />
+                  {widget.id !== 'real-time' && (
+                    <div className="bg-shield/10 p-3 flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="h-6 w-6 rounded-md bg-shield/20 flex items-center justify-center mr-2">
+                          <Icon name={widget.icon as any} className="h-3 w-3 text-shield-dark" />
+                        </div>
+                        <h4 className="font-medium text-sm">{widget.title}</h4>
                       </div>
-                      <h4 className="font-medium text-sm">{widget.title}</h4>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                          <Icon name="more-horizontal" className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                        <Icon name="more-horizontal" className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
+                  )}
                   {widget.component}
                 </Card>
               </motion.div>

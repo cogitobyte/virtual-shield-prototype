@@ -1,378 +1,474 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Icon } from '@/components/Icon';
 import { PermissionType } from '@/modules/types';
-import { motion } from "framer-motion";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Switch } from "@/components/ui/switch";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "@/components/ui/use-toast";
 
 interface PermissionLessonProps {
   onComplete: () => void;
 }
 
-interface Lesson {
+interface PermissionDetail {
   id: string;
   title: string;
   description: string;
-  permissionType: PermissionType;
   icon: string;
-  scenarios: Scenario[];
-  currentScenario: number;
-  completed: boolean;
-}
-
-interface Scenario {
-  id: string;
-  description: string;
-  question: string;
-  options: {
-    text: string;
-    isCorrect: boolean;
-    explanation: string;
-  }[];
-  answered: boolean;
-  userAnswer: boolean | null;
+  type: PermissionType;
+  risks: string[];
+  benefits: string[];
+  bestPractices: string[];
+  explored: boolean;
 }
 
 export function InteractivePermissionLearning({ onComplete }: PermissionLessonProps) {
-  const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
-  const [showExplanation, setShowExplanation] = useState(false);
-  const [explanationText, setExplanationText] = useState("");
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [activePermission, setActivePermission] = useState<string | null>(null);
+  const [detailView, setDetailView] = useState<'overview' | 'risks' | 'benefits' | 'practices'>('overview');
   const [progress, setProgress] = useState(0);
-  const [completed, setCompleted] = useState(false);
-  
-  const [lessons, setLessons] = useState<Lesson[]>([
+  const [permissions, setPermissions] = useState<PermissionDetail[]>([
     {
       id: "location",
-      title: "Location Privacy",
-      description: "Learn about location tracking and how to control it",
-      permissionType: "LOCATION",
+      title: "Location",
+      description: "Apps can track where you are, either precisely or approximately",
       icon: "map-pin",
-      scenarios: [
-        {
-          id: "location-1",
-          description: "A social media app requests your precise location while using the app.",
-          question: "Should you grant this permission?",
-          options: [
-            {
-              text: "Yes, always allow",
-              isCorrect: false,
-              explanation: "Allowing continuous access to your location can compromise privacy. Consider 'Only while using' instead."
-            },
-            {
-              text: "Only while using the app",
-              isCorrect: true,
-              explanation: "Good choice! This limits location tracking to when you're actively using the app."
-            },
-            {
-              text: "Deny",
-              isCorrect: false,
-              explanation: "This would work, but some features like nearby friends might not function properly."
-            }
-          ],
-          answered: false,
-          userAnswer: null
-        },
-        {
-          id: "location-2",
-          description: "A weather app asks for background location access.",
-          question: "Is this a reasonable request?",
-          options: [
-            {
-              text: "Yes, it needs this for weather alerts",
-              isCorrect: true,
-              explanation: "Correct! Weather apps can use background location for timely alerts about changing conditions."
-            },
-            {
-              text: "No, it should only need foreground access",
-              isCorrect: false,
-              explanation: "Weather apps often need background access to provide timely alerts for your current location."
-            }
-          ],
-          answered: false,
-          userAnswer: null
-        }
+      type: "LOCATION",
+      risks: [
+        "Apps can track your movements throughout the day",
+        "Location history can reveal personal routines",
+        "Some apps collect location even when not in use"
       ],
-      currentScenario: 0,
-      completed: false
+      benefits: [
+        "Get directions and navigation assistance",
+        "Find nearby services and businesses",
+        "Receive localized content and information"
+      ],
+      bestPractices: [
+        "Only allow while using the app",
+        "Review which apps have location access regularly",
+        "Use approximate location when precise isn't needed"
+      ],
+      explored: false
     },
     {
       id: "contacts",
-      title: "Contacts Access",
-      description: "Understand why apps request access to your contacts",
-      permissionType: "CONTACTS",
+      title: "Contacts",
+      description: "Apps can read your contact list, including names, numbers, and emails",
       icon: "users",
-      scenarios: [
-        {
-          id: "contacts-1",
-          description: "A messaging app requests access to your contacts.",
-          question: "Is this necessary for the app to function?",
-          options: [
-            {
-              text: "Yes, to find friends on the platform",
-              isCorrect: true,
-              explanation: "Correct! Messaging apps need contacts access to help you connect with friends on the service."
-            },
-            {
-              text: "No, I can add contacts manually",
-              isCorrect: false,
-              explanation: "While you could add contacts manually, this would be very time-consuming and limit functionality."
-            }
-          ],
-          answered: false,
-          userAnswer: null
-        },
-        {
-          id: "contacts-2",
-          description: "A gaming app requests access to your contacts.",
-          question: "Should you grant this permission?",
-          options: [
-            {
-              text: "Yes, always",
-              isCorrect: false,
-              explanation: "Most games don't need your contacts to function. Be cautious about what data you share."
-            },
-            {
-              text: "No, unless it has social features I want",
-              isCorrect: true,
-              explanation: "Good decision! Only grant contacts access if the app has specific social features you want to use."
-            }
-          ],
-          answered: false,
-          userAnswer: null
-        }
+      type: "CONTACTS",
+      risks: [
+        "Apps may upload your entire contact list to servers",
+        "Your contacts' information is shared without their consent",
+        "Data might be used for marketing or sold to third parties"
       ],
-      currentScenario: 0,
-      completed: false
+      benefits: [
+        "Easily connect with friends using the same app",
+        "Sync contacts across devices",
+        "Auto-complete contact information when messaging"
+      ],
+      bestPractices: [
+        "Only grant access to social and communication apps",
+        "Check privacy policy for how contacts are stored",
+        "Regularly review and revoke unnecessary access"
+      ],
+      explored: false
     },
     {
       id: "camera",
-      title: "Camera Access",
-      description: "Learn when to grant camera permissions",
-      permissionType: "FILE_ACCESS",
+      title: "Camera",
+      description: "Apps can take photos, record video, and access your camera roll",
       icon: "camera",
-      scenarios: [
-        {
-          id: "camera-1",
-          description: "A photo editing app requests camera access.",
-          question: "Is this request appropriate?",
-          options: [
-            {
-              text: "Yes, it needs this to function",
-              isCorrect: true,
-              explanation: "Correct! A photo editing app needs camera access to take photos for editing."
-            },
-            {
-              text: "No, it should only need gallery access",
-              isCorrect: false,
-              explanation: "While gallery access is needed, camera access allows you to directly take and edit photos."
-            }
-          ],
-          answered: false,
-          userAnswer: null
-        },
-        {
-          id: "camera-2",
-          description: "A calculator app requests camera access during setup.",
-          question: "Does this seem suspicious?",
-          options: [
-            {
-              text: "No, it might need it for scanning",
-              isCorrect: false,
-              explanation: "Standard calculators don't need camera access. This could be a privacy risk."
-            },
-            {
-              text: "Yes, this is unnecessary for a calculator",
-              isCorrect: true,
-              explanation: "Good instinct! A basic calculator app has no legitimate need for camera access."
-            }
-          ],
-          answered: false,
-          userAnswer: null
-        }
+      type: "FILE_ACCESS",
+      risks: [
+        "Apps could potentially access the camera without clear indication",
+        "Photos might contain sensitive information or metadata",
+        "Images may be analyzed for personal data or behavior patterns"
       ],
-      currentScenario: 0,
-      completed: false
+      benefits: [
+        "Take and share photos/videos within apps",
+        "Use visual features like QR code scanning",
+        "Apply filters and effects to camera content"
+      ],
+      bestPractices: [
+        "Only grant camera access when actively using it",
+        "Cover camera when not in use for sensitive situations",
+        "Review app permissions after updating apps"
+      ],
+      explored: false
+    },
+    {
+      id: "microphone",
+      title: "Microphone",
+      description: "Apps can record audio from your device microphone",
+      icon: "mic",
+      type: "FILE_ACCESS",
+      risks: [
+        "Apps could potentially record conversations without clear indication",
+        "Voice data might be processed to learn about your interests",
+        "Audio could capture sensitive information in the background"
+      ],
+      benefits: [
+        "Voice messaging and calling features",
+        "Voice commands and dictation",
+        "Audio recording for notes or content creation"
+      ],
+      bestPractices: [
+        "Only grant microphone access when actively using it",
+        "Check for microphone indicator when in use",
+        "Review which apps have microphone access regularly"
+      ],
+      explored: false
     }
   ]);
 
-  const currentLesson = lessons[currentLessonIndex];
-  const currentScenario = currentLesson.scenarios[currentLesson.currentScenario];
+  // Calculate progress when permissions are explored
+  useEffect(() => {
+    const exploredCount = permissions.filter(p => p.explored).length;
+    const newProgress = Math.round((exploredCount / permissions.length) * 100);
+    setProgress(newProgress);
+    
+    // Show toast for progress milestones
+    if (newProgress === 25) {
+      toast({
+        title: "25% Complete!",
+        description: "You're learning about important privacy permissions.",
+      });
+    } else if (newProgress === 50) {
+      toast({
+        title: "Halfway There!",
+        description: "Keep exploring to learn more about privacy protection.",
+      });
+    } else if (newProgress === 100) {
+      toast({
+        title: "Learning Complete!",
+        description: "Great job exploring all permission types!",
+      });
+      // Auto-advance after a short delay
+      setTimeout(() => {
+        onComplete();
+      }, 2000);
+    }
+  }, [permissions, onComplete]);
 
-  const handleAnswerSelect = (isCorrect: boolean, explanation: string) => {
-    setIsCorrect(isCorrect);
-    setExplanationText(explanation);
-    setShowExplanation(true);
+  const handlePermissionSelect = (id: string) => {
+    setActivePermission(id);
+    setDetailView('overview');
     
-    // Update the lesson state
-    const updatedLessons = [...lessons];
-    const lesson = updatedLessons[currentLessonIndex];
-    lesson.scenarios[lesson.currentScenario].answered = true;
-    lesson.scenarios[lesson.currentScenario].userAnswer = isCorrect;
-    setLessons(updatedLessons);
-    
-    // Calculate progress
-    const totalScenarios = updatedLessons.reduce((sum, lesson) => sum + lesson.scenarios.length, 0);
-    const answeredScenarios = updatedLessons.reduce((sum, lesson) => 
-      sum + lesson.scenarios.filter(s => s.answered).length, 0);
-    
-    setProgress(Math.round((answeredScenarios / totalScenarios) * 100));
+    // Mark as explored
+    if (!permissions.find(p => p.id === id)?.explored) {
+      setPermissions(prev => 
+        prev.map(p => p.id === id ? {...p, explored: true} : p)
+      );
+    }
   };
 
-  const moveToNextScenario = () => {
-    setShowExplanation(false);
-    setIsCorrect(null);
-    
-    const updatedLessons = [...lessons];
-    const lesson = updatedLessons[currentLessonIndex];
-    
-    // Check if there are more scenarios in this lesson
-    if (lesson.currentScenario < lesson.scenarios.length - 1) {
-      lesson.currentScenario += 1;
-      setLessons(updatedLessons);
-      return;
-    }
-    
-    // Mark this lesson as completed
-    lesson.completed = true;
-    
-    // Find the next uncompleted lesson
-    const nextLessonIndex = updatedLessons.findIndex((l, index) => 
-      index > currentLessonIndex && !l.completed);
-    
-    if (nextLessonIndex !== -1) {
-      setCurrentLessonIndex(nextLessonIndex);
-    } else {
-      // All lessons completed
-      setCompleted(true);
-    }
-    
-    setLessons(updatedLessons);
+  const handleBackToGrid = () => {
+    setActivePermission(null);
   };
-
-  if (completed) {
-    return (
-      <motion.div 
-        className="space-y-6 py-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="bg-shield/10 border-shield/20 p-6">
-          <div className="text-center space-y-4">
-            <div className="mx-auto w-16 h-16 bg-shield-light/20 rounded-full flex items-center justify-center">
-              <Icon name="check" className="w-8 h-8 text-shield" />
-            </div>
-            <h3 className="text-xl font-bold">Learning Complete!</h3>
-            <p className="text-muted-foreground">
-              You've completed all the privacy permission lessons. You're now better equipped to make informed decisions about app permissions.
-            </p>
-            <Button onClick={onComplete} className="w-full sm:w-auto bg-shield hover:bg-shield-dark">
-              Continue to Dashboard
-            </Button>
-          </div>
-        </Card>
-      </motion.div>
-    );
-  }
 
   return (
-    <div className="space-y-6 py-4">
+    <div className="space-y-6 pt-2">
       <div className="flex justify-between items-center">
-        <div className="space-y-1">
-          <h3 className="text-lg font-medium">{currentLesson.title}</h3>
-          <p className="text-sm text-muted-foreground">{currentLesson.description}</p>
-        </div>
-        <div className="h-10 w-10 rounded-full bg-shield/20 flex items-center justify-center">
-          <Icon name={currentLesson.icon as any} className="h-5 w-5 text-shield" />
-        </div>
-      </div>
-      
-      <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-        <motion.div 
-          className="h-full bg-shield"
-          initial={{ width: '0%' }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.5 }}
-        />
-      </div>
-      
-      <Card className="p-6 space-y-4 bg-white shadow-md border-shield/10">
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Scenario {currentLesson.currentScenario + 1} of {currentLesson.scenarios.length}
-          </p>
-          <p className="font-medium">{currentScenario.description}</p>
-          <p className="font-semibold text-shield-dark">{currentScenario.question}</p>
-        </div>
+        <h3 className="text-lg font-medium flex items-center">
+          <Icon name="shield-check" className="mr-2 h-5 w-5 text-shield" />
+          Privacy Permission Explorer
+        </h3>
         
-        {!showExplanation ? (
-          <div className="space-y-3">
-            {currentScenario.options.map((option, index) => (
-              <Button
-                key={index}
-                onClick={() => handleAnswerSelect(option.isCorrect, option.explanation)}
-                variant="outline"
-                className="w-full text-left justify-start h-auto py-3 px-4"
-              >
-                {option.text}
-              </Button>
-            ))}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-muted-foreground">{progress}% completed</span>
+          <div className="h-2 w-24 bg-gray-200 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-shield"
+              initial={{ width: '0%' }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5 }}
+            />
           </div>
+        </div>
+      </div>
+      
+      <AnimatePresence mode="wait">
+        {activePermission ? (
+          <motion.div
+            key="permission-detail"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Permission Detail View */}
+            <Card className="overflow-hidden border-shield-light/20">
+              {/* Header with back button */}
+              <div className="bg-shield-light/10 p-4 flex items-center justify-between">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleBackToGrid} 
+                  className="flex items-center text-shield"
+                >
+                  <Icon name="arrow-left" className="h-4 w-4 mr-1" />
+                  Back to all
+                </Button>
+                
+                <div className="flex space-x-1">
+                  <motion.div
+                    className={`w-2 h-2 rounded-full ${detailView === 'overview' ? 'bg-shield' : 'bg-gray-300'}`}
+                    animate={{ scale: detailView === 'overview' ? 1.2 : 1 }}
+                  />
+                  <motion.div
+                    className={`w-2 h-2 rounded-full ${detailView === 'risks' ? 'bg-shield' : 'bg-gray-300'}`}
+                    animate={{ scale: detailView === 'risks' ? 1.2 : 1 }}
+                  />
+                  <motion.div
+                    className={`w-2 h-2 rounded-full ${detailView === 'benefits' ? 'bg-shield' : 'bg-gray-300'}`}
+                    animate={{ scale: detailView === 'benefits' ? 1.2 : 1 }}
+                  />
+                  <motion.div
+                    className={`w-2 h-2 rounded-full ${detailView === 'practices' ? 'bg-shield' : 'bg-gray-300'}`}
+                    animate={{ scale: detailView === 'practices' ? 1.2 : 1 }}
+                  />
+                </div>
+              </div>
+              
+              {/* Content */}
+              {permissions.filter(p => p.id === activePermission).map((permission) => (
+                <div key={permission.id} className="p-5">
+                  <div className="flex items-center mb-4">
+                    <div className="h-12 w-12 rounded-full bg-shield-light/20 flex items-center justify-center mr-3">
+                      <Icon name={permission.icon as any} className="h-6 w-6 text-shield" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">{permission.title} Permission</h3>
+                      <p className="text-muted-foreground">{permission.description}</p>
+                    </div>
+                  </div>
+                  
+                  <AnimatePresence mode="wait">
+                    {detailView === 'overview' && (
+                      <motion.div
+                        key="overview"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-4"
+                      >
+                        <p>Tap to explore different aspects of {permission.title} permissions:</p>
+                        
+                        <div className="grid grid-cols-3 gap-3">
+                          <motion.div 
+                            className="bg-red-50 rounded-lg p-4 text-center cursor-pointer border border-red-100"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setDetailView('risks')}
+                          >
+                            <Icon name="shield-alert" className="h-8 w-8 text-red-500 mx-auto mb-2" />
+                            <span className="font-medium text-red-700">Risks</span>
+                          </motion.div>
+                          
+                          <motion.div 
+                            className="bg-green-50 rounded-lg p-4 text-center cursor-pointer border border-green-100"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setDetailView('benefits')}
+                          >
+                            <Icon name="check" className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                            <span className="font-medium text-green-700">Benefits</span>
+                          </motion.div>
+                          
+                          <motion.div 
+                            className="bg-blue-50 rounded-lg p-4 text-center cursor-pointer border border-blue-100"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setDetailView('practices')}
+                          >
+                            <Icon name="info" className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                            <span className="font-medium text-blue-700">Best Practices</span>
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    )}
+                    
+                    {detailView === 'risks' && (
+                      <motion.div
+                        key="risks"
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -50 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-4"
+                      >
+                        <h4 className="font-bold text-red-700 flex items-center">
+                          <Icon name="shield-alert" className="h-5 w-5 mr-2" />
+                          Potential Risks
+                        </h4>
+                        
+                        <ul className="space-y-3">
+                          {permission.risks.map((risk, idx) => (
+                            <motion.li 
+                              key={idx}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              className="flex items-start"
+                            >
+                              <Icon name="alert-triangle" className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
+                              <span>{risk}</span>
+                            </motion.li>
+                          ))}
+                        </ul>
+                        
+                        <Button onClick={() => setDetailView('overview')} variant="ghost" className="mt-2">
+                          <Icon name="arrow-left" className="h-4 w-4 mr-2" />
+                          Back
+                        </Button>
+                      </motion.div>
+                    )}
+                    
+                    {detailView === 'benefits' && (
+                      <motion.div
+                        key="benefits"
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -50 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-4"
+                      >
+                        <h4 className="font-bold text-green-700 flex items-center">
+                          <Icon name="check" className="h-5 w-5 mr-2" />
+                          Potential Benefits
+                        </h4>
+                        
+                        <ul className="space-y-3">
+                          {permission.benefits.map((benefit, idx) => (
+                            <motion.li 
+                              key={idx}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              className="flex items-start"
+                            >
+                              <Icon name="check-circle" className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                              <span>{benefit}</span>
+                            </motion.li>
+                          ))}
+                        </ul>
+                        
+                        <Button onClick={() => setDetailView('overview')} variant="ghost" className="mt-2">
+                          <Icon name="arrow-left" className="h-4 w-4 mr-2" />
+                          Back
+                        </Button>
+                      </motion.div>
+                    )}
+                    
+                    {detailView === 'practices' && (
+                      <motion.div
+                        key="practices"
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -50 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-4"
+                      >
+                        <h4 className="font-bold text-blue-700 flex items-center">
+                          <Icon name="info" className="h-5 w-5 mr-2" />
+                          Best Practices
+                        </h4>
+                        
+                        <ul className="space-y-3">
+                          {permission.bestPractices.map((practice, idx) => (
+                            <motion.li 
+                              key={idx}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              className="flex items-start"
+                            >
+                              <Icon name="check" className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+                              <span>{practice}</span>
+                            </motion.li>
+                          ))}
+                        </ul>
+                        
+                        <Button onClick={() => setDetailView('overview')} variant="ghost" className="mt-2">
+                          <Icon name="arrow-left" className="h-4 w-4 mr-2" />
+                          Back
+                        </Button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </Card>
+          </motion.div>
         ) : (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            key="permission-grid"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`p-4 rounded-lg ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
           >
-            <div className="flex items-start">
-              <div className={`mr-3 flex-shrink-0 mt-1 rounded-full p-1 ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
-                <Icon name={isCorrect ? "check" : "x"} className={`h-4 w-4 ${isCorrect ? 'text-green-500' : 'text-red-500'}`} />
-              </div>
-              <div>
-                <p className={`font-medium ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                  {isCorrect ? 'Correct!' : 'Not quite right.'}
-                </p>
-                <p className="mt-1 text-sm">{explanationText}</p>
-              </div>
+            {/* Permission Grid View */}
+            <div className="grid grid-cols-2 gap-4">
+              {permissions.map((permission) => (
+                <motion.div
+                  key={permission.id}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handlePermissionSelect(permission.id)}
+                  className={`cursor-pointer rounded-lg p-4 border transition-all relative overflow-hidden ${
+                    permission.explored 
+                      ? 'border-shield bg-shield/5' 
+                      : 'border-gray-200 bg-white hover:border-shield-light/50'
+                  }`}
+                >
+                  {permission.explored && (
+                    <motion.div 
+                      className="absolute top-2 right-2 bg-shield-light text-white rounded-full p-1"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                    >
+                      <Icon name="check" className="h-3 w-3" />
+                    </motion.div>
+                  )}
+                  
+                  <div className="flex flex-col items-center text-center space-y-3 py-2">
+                    <div className={`h-16 w-16 rounded-full flex items-center justify-center ${
+                      permission.explored ? 'bg-shield-light/20' : 'bg-gray-100'
+                    }`}>
+                      <Icon 
+                        name={permission.icon as any} 
+                        className={`h-8 w-8 ${
+                          permission.explored ? 'text-shield' : 'text-gray-500'
+                        }`} 
+                      />
+                    </div>
+                    <div>
+                      <h4 className="font-bold">{permission.title}</h4>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{permission.description}</p>
+                    </div>
+                    <Button 
+                      variant={permission.explored ? "outline" : "default"}
+                      size="sm" 
+                      className={permission.explored ? "border-shield text-shield" : "bg-shield"}>
+                      {permission.explored ? "View Again" : "Explore"}
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-            <Button 
-              onClick={moveToNextScenario} 
-              className="w-full mt-4 bg-shield hover:bg-shield-dark"
-            >
-              Continue
-            </Button>
+            
+            <div className="mt-6 text-center">
+              <Button onClick={onComplete} variant="outline" className="w-full sm:w-auto">
+                {progress === 100 ? "Complete Learning" : "Skip to Next Section"}
+              </Button>
+            </div>
           </motion.div>
         )}
-      </Card>
-      
-      <div className="flex justify-between">
-        <ToggleGroup type="single" value={currentLessonIndex.toString()}>
-          {lessons.map((lesson, index) => (
-            <ToggleGroupItem
-              key={lesson.id}
-              value={index.toString()}
-              onClick={() => !showExplanation && setCurrentLessonIndex(index)}
-              disabled={showExplanation}
-              className={`${
-                lesson.completed ? 'bg-shield/20 text-shield-dark' : 
-                index === currentLessonIndex ? 'bg-shield text-white' : 
-                'bg-gray-100'
-              } px-4 py-2 rounded-md`}
-            >
-              <Icon name={lesson.icon as any} className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">{lesson.title}</span>
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-        
-        <Button variant="outline" size="sm" onClick={onComplete}>
-          Skip Tutorial
-        </Button>
-      </div>
+      </AnimatePresence>
     </div>
   );
 }
