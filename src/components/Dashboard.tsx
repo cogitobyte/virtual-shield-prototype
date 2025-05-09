@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import PermissionRequestDialog from './PermissionRequestDialog';
 import VirtualShieldPrompt from './VirtualShieldPrompt';
 import PermissionDemo from './PermissionDemo';
+import InteractivePermissionLearning from './InteractivePermissionLearning';
 import CustomizableDashboard from './CustomizableDashboard';
 
 export function Dashboard() {
@@ -26,8 +28,9 @@ export function Dashboard() {
   const [showHelp, setShowHelp] = useState(true);
   const [showPermissionRequest, setShowPermissionRequest] = useState(false);
   const [showVirtualShieldPrompt, setShowVirtualShieldPrompt] = useState(false);
-  const [showDemo, setShowDemo] = useState(true);
+  const [showDemo, setShowDemo] = useState(false);
   const [showFloatingIcon, setShowFloatingIcon] = useState(false);
+  const [showLearningModule, setShowLearningModule] = useState(false);
   const isMobile = useIsMobile();
   
   // First-time user guide
@@ -43,9 +46,7 @@ export function Dashboard() {
 
     // Check if demo has been viewed
     const demoViewed = localStorage.getItem('virtualShield_demoViewed');
-    if (!demoViewed) {
-      setShowDemo(true);
-    } else {
+    if (demoViewed) {
       setShowDemo(false);
     }
     
@@ -163,6 +164,14 @@ export function Dashboard() {
     localStorage.setItem('virtualShield_demoViewed', 'true');
   };
 
+  const handleCompleteLearning = () => {
+    setShowLearningModule(false);
+    toast({
+      title: "Learning Complete!",
+      description: "You've explored all permission types.",
+    });
+  };
+
   // If demo is shown, only display the demo
   if (showDemo) {
     return (
@@ -191,6 +200,31 @@ export function Dashboard() {
     );
   }
   
+  // If learning module is shown, only display that
+  if (showLearningModule) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-shield to-shield-dark flex items-center justify-center">
+              <Icon name="shield" className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-left">
+              <h2 className="text-xl font-bold tracking-tight">Virtual Shield</h2>
+              <p className="text-xs text-muted-foreground">Privacy learning module</p>
+            </div>
+          </div>
+
+          <Button variant="outline" size="sm" onClick={() => setShowLearningModule(false)}>
+            Exit Learning
+          </Button>
+        </div>
+
+        <InteractivePermissionLearning onComplete={handleCompleteLearning} />
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -205,6 +239,10 @@ export function Dashboard() {
         </div>
         
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowLearningModule(true)}>
+            <Icon name="book-open" className="h-4 w-4 mr-1" /> 
+            Learn About Permissions
+          </Button>
           <Button variant="outline" size="sm" onClick={() => {
             setShowDemo(true);
             // Set flag for floating icon demo
@@ -214,7 +252,7 @@ export function Dashboard() {
             View Protection Flow
           </Button>
           <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
-            <Icon name="helpCircle" size={20} className="text-shield-accent" />
+            <Icon name="help-circle" size={20} className="text-shield-accent" />
           </Button>
         </div>
       </div>
@@ -252,7 +290,7 @@ export function Dashboard() {
             
             {activeTab === "logs" && <PermissionLog />}
             
-            {activeTab === "dashboard" && <CustomizableDashboard />}
+            {activeTab === "dashboard" && <PrivacyDashboard />}
           </div>
           
           {/* Bottom Navigation */}
@@ -332,7 +370,7 @@ export function Dashboard() {
           </TabsContent>
           
           <TabsContent value="dashboard">
-            <CustomizableDashboard />
+            <PrivacyDashboard />
           </TabsContent>
           
           <TabsContent value="logs">

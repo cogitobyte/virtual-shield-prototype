@@ -173,8 +173,6 @@ export function VirtualShieldPrompt({
                 <Button 
                   className="w-full bg-shield hover:bg-shield-light transition-all"
                   onClick={onOpenDashboard}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.98 }}
                 >
                   <Icon name="shield" className="h-4 w-4 mr-2" />
                   Protect with Virtual Shield
