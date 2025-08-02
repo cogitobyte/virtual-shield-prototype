@@ -55,7 +55,8 @@ export function RealTimePrivacyDashboard() {
     "CONTACTS": "users",
     "CALL_LOGS": "phone",
     "MESSAGES": "message-square",
-    "FILE_ACCESS": "file"
+    "FILE_ACCESS": "file",
+    "GENERAL": "settings"
   };
 
   // Start simulation on component mount

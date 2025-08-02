@@ -48,7 +48,8 @@ export function PrivacyDashboard() {
     'CONTACTS': 'Contacts',
     'CALL_LOGS': 'Call Logs',
     'MESSAGES': 'Messages',
-    'FILE_ACCESS': 'Files'
+    'FILE_ACCESS': 'Files',
+    'GENERAL': 'General'
   };
   
   // Colors for risk levels
@@ -77,7 +78,8 @@ export function PrivacyDashboard() {
         'CONTACTS': { granted: 0, simulated: 0, denied: 0 },
         'CALL_LOGS': { granted: 0, simulated: 0, denied: 0 },
         'MESSAGES': { granted: 0, simulated: 0, denied: 0 },
-        'FILE_ACCESS': { granted: 0, simulated: 0, denied: 0 }
+        'FILE_ACCESS': { granted: 0, simulated: 0, denied: 0 },
+        'GENERAL': { granted: 0, simulated: 0, denied: 0 }
       };
       
       summary.forEach(app => {
