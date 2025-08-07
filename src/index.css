@@ -5,39 +5,57 @@
  
 @layer base {
   :root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
- 
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
- 
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
- 
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
- 
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
- 
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
- 
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
- 
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    /* Phone OS Monochrome Palette */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 0 0% 95%;
+    --primary-foreground: 0 0% 8%;
+
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 85%;
+
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 95%;
+    --accent-foreground: 0 0% 8%;
+
+    --destructive: 0 0% 45%;
+    --destructive-foreground: 0 0% 95%;
+
+    --border: 0 0% 25%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 80%;
     
-    --shield: 211 75% 29%;
-    --shield-dark: 211 70% 14%;
-    --shield-light: 211 75% 69%;
-    --shield-secondary: 251 75% 50%;
-    --shield-accent: 151 75% 50%;
+    /* Status Bar */
+    --status-bar: 0 0% 5%;
+    --status-indicator: 0 0% 75%;
+    
+    /* Navigation */
+    --nav-active: 0 0% 95%;
+    --nav-inactive: 0 0% 45%;
+    
+    /* OS Elements */
+    --os-surface: 0 0% 15%;
+    --os-surface-elevated: 0 0% 20%;
+    --os-overlay: 0 0% 5% / 0.9;
+    
+    /* VDC Integration */
+    --shield: 0 0% 75%;
+    --shield-dark: 0 0% 25%;
+    --shield-light: 0 0% 85%;
+    --shield-secondary: 0 0% 55%;
+    --shield-accent: 0 0% 65%;
+    
+    /* Radius */
+    --radius: 12px;
   }
 }
  

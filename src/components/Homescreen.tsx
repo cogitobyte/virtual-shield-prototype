@@ -21,17 +21,17 @@ const AnalogClock = () => {
   const secondAngle = seconds * 6;
 
   return (
-    <Card className="bg-muted/20 border-muted p-6 h-full flex items-center justify-center">
-      <div className="relative w-32 h-32">
+    <Card className="bg-os-surface/60 border-border/30 p-4 h-full flex items-center justify-center backdrop-blur-sm">
+      <div className="relative w-28 h-28">
         <svg className="w-full h-full" viewBox="0 0 120 120">
           {/* Clock face */}
           <circle
             cx="60"
             cy="60"
-            r="58"
+            r="56"
             fill="transparent"
-            stroke="hsl(var(--muted-foreground))"
-            strokeWidth="2"
+            stroke="hsl(var(--border))"
+            strokeWidth="1"
           />
           
           {/* Hour markers */}
@@ -39,11 +39,11 @@ const AnalogClock = () => {
             <line
               key={i}
               x1="60"
-              y1="10"
+              y1="8"
               x2="60"
-              y2="20"
+              y2="16"
               stroke="hsl(var(--muted-foreground))"
-              strokeWidth="2"
+              strokeWidth={i % 3 === 0 ? "2" : "1"}
               transform={`rotate(${i * 30} 60 60)`}
             />
           ))}
@@ -53,7 +53,7 @@ const AnalogClock = () => {
             x1="60"
             y1="60"
             x2="60"
-            y2="35"
+            y2="38"
             stroke="hsl(var(--foreground))"
             strokeWidth="3"
             strokeLinecap="round"
@@ -65,7 +65,7 @@ const AnalogClock = () => {
             x1="60"
             y1="60"
             x2="60"
-            y2="20"
+            y2="22"
             stroke="hsl(var(--foreground))"
             strokeWidth="2"
             strokeLinecap="round"
@@ -77,7 +77,7 @@ const AnalogClock = () => {
             x1="60"
             y1="60"
             x2="60"
-            y2="15"
+            y2="18"
             stroke="hsl(var(--muted-foreground))"
             strokeWidth="1"
             strokeLinecap="round"
@@ -88,12 +88,12 @@ const AnalogClock = () => {
           <circle
             cx="60"
             cy="60"
-            r="3"
+            r="2"
             fill="hsl(var(--foreground))"
           />
         </svg>
         
-        <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-sm text-muted-foreground font-mono">
+        <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs text-muted-foreground font-mono">
           {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
@@ -104,29 +104,29 @@ const AnalogClock = () => {
 const WeatherWidget = () => {
   const [weather] = useState({
     temperature: 72,
-    condition: 'Partly Cloudy',
+    condition: 'Clear',
     humidity: 65,
     windSpeed: 8
   });
 
   return (
-    <Card className="bg-muted/20 border-muted p-6 h-full">
+    <Card className="bg-os-surface/60 border-border/30 p-4 h-full backdrop-blur-sm">
       <div className="flex flex-col h-full justify-between">
-        <div className="flex items-center justify-between mb-4">
-          <Icon name="cloud" className="text-muted-foreground" size={24} />
-          <span className="text-sm text-muted-foreground">Weather</span>
+        <div className="flex items-center justify-between mb-3">
+          <Icon name="sun" className="text-muted-foreground" size={20} />
+          <span className="text-xs text-muted-foreground">Weather</span>
         </div>
         
         <div className="text-center">
-          <div className="text-3xl font-bold text-foreground mb-2">
+          <div className="text-2xl font-light text-foreground mb-1">
             {weather.temperature}°
           </div>
-          <div className="text-sm text-muted-foreground mb-4">
+          <div className="text-xs text-muted-foreground mb-3">
             {weather.condition}
           </div>
         </div>
         
-        <div className="space-y-2 text-xs text-muted-foreground">
+        <div className="space-y-1 text-xs text-muted-foreground">
           <div className="flex justify-between">
             <span>Humidity</span>
             <span>{weather.humidity}%</span>
@@ -145,32 +145,36 @@ const QuickActions = () => {
   const actions = [
     { name: 'wifi', label: 'WiFi' },
     { name: 'bluetooth', label: 'Bluetooth' },
-    { name: 'battery', label: 'Battery' },
+    { name: 'flashlight', label: 'Light' },
     { name: 'settings', label: 'Settings' },
-    { name: 'camera', label: 'Camera' },
-    { name: 'phone', label: 'Phone' }
+    { name: 'airplane', label: 'Flight' },
+    { name: 'shield', label: 'Shield' }
   ];
 
   return (
-    <Card className="bg-muted/20 border-muted p-6 h-full">
-      <div className="mb-4">
-        <span className="text-sm text-muted-foreground">Quick Actions</span>
+    <Card className="bg-os-surface/60 border-border/30 p-4 h-full backdrop-blur-sm">
+      <div className="mb-3">
+        <span className="text-xs text-muted-foreground">Quick Toggles</span>
       </div>
       
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-2">
         {actions.map((action) => (
           <Button
             key={action.name}
             variant="ghost"
             size="sm"
-            className="h-12 w-12 p-0 hover:bg-muted/40 border border-muted-foreground/20"
+            className="h-8 w-full p-0 hover:bg-os-surface-elevated border border-border/20 rounded-lg"
           >
-            <Icon name={action.name} size={20} className="text-muted-foreground" />
+            <Icon 
+              name={action.name} 
+              size={14} 
+              className={`${action.name === 'shield' ? 'text-shield-accent' : 'text-muted-foreground'}`} 
+            />
           </Button>
         ))}
       </div>
       
-      <div className="grid grid-cols-3 gap-1 mt-2 text-xs text-muted-foreground">
+      <div className="grid grid-cols-2 gap-1 mt-1 text-[10px] text-muted-foreground">
         {actions.map((action) => (
           <div key={`${action.name}-label`} className="text-center truncate">
             {action.label}
@@ -181,40 +185,90 @@ const QuickActions = () => {
   );
 };
 
-export const Homescreen = () => {
+interface HomescreenProps {
+  onNavigate?: (screen: string) => void;
+}
+
+export const Homescreen = ({ onNavigate }: HomescreenProps = {}) => {
+  const currentTime = new Date().toLocaleTimeString([], { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true 
+  });
+  
+  const currentDate = new Date().toLocaleDateString([], { 
+    weekday: 'long',
+    month: 'long', 
+    day: 'numeric' 
+  });
+
   return (
-    <div className="h-full bg-background p-4">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground mb-2">Home</h1>
-        <p className="text-sm text-muted-foreground">Customize your widgets</p>
+    <div className="h-full bg-gradient-to-br from-background via-background to-os-surface p-6">
+      {/* Welcome Header */}
+      <div className="mb-8 text-center">
+        <div className="text-4xl font-light text-foreground mb-1 font-mono">
+          {currentTime}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {currentDate}
+        </div>
       </div>
       
-      <ResizablePanelGroup direction="horizontal" className="h-96 rounded-lg border border-muted">
+      {/* Widget Panels */}
+      <ResizablePanelGroup direction="horizontal" className="h-80 rounded-2xl border border-border bg-os-surface/30 backdrop-blur-sm">
         <ResizablePanel defaultSize={35} minSize={25}>
-          <div className="h-full p-2">
+          <div className="h-full p-3">
             <AnalogClock />
           </div>
         </ResizablePanel>
         
-        <ResizableHandle withHandle />
+        <ResizableHandle withHandle className="w-1 bg-border hover:bg-border/80" />
         
         <ResizablePanel defaultSize={35} minSize={25}>
-          <div className="h-full p-2">
+          <div className="h-full p-3">
             <WeatherWidget />
           </div>
         </ResizablePanel>
         
-        <ResizableHandle withHandle />
+        <ResizableHandle withHandle className="w-1 bg-border hover:bg-border/80" />
         
         <ResizablePanel defaultSize={30} minSize={25}>
-          <div className="h-full p-2">
+          <div className="h-full p-3">
             <QuickActions />
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
       
-      <div className="mt-4 text-xs text-muted-foreground text-center">
-        Drag the handles to resize widgets
+      {/* Quick Access Apps */}
+      <div className="mt-8 mb-6">
+        <div className="flex justify-center space-x-6">
+          {[
+            { name: 'shield', label: 'Shield', action: () => onNavigate?.('dashboard') },
+            { name: 'phone', label: 'Phone' },
+            { name: 'messageSquare', label: 'Messages' },
+            { name: 'camera', label: 'Camera' }
+          ].map((app) => (
+            <button
+              key={app.name}
+              onClick={app.action}
+              className="flex flex-col items-center space-y-2 p-3 rounded-2xl hover:bg-os-surface-elevated transition-colors group"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-os-surface border border-border flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Icon 
+                  name={app.name} 
+                  className={`h-7 w-7 ${app.name === 'shield' ? 'text-shield-accent' : 'text-muted-foreground'}`} 
+                />
+              </div>
+              <span className="text-xs text-muted-foreground font-medium">
+                {app.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      <div className="text-xs text-muted-foreground text-center">
+        Drag widget handles to resize • Swipe up for apps
       </div>
     </div>
   );
