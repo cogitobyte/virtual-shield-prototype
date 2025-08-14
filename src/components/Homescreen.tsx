@@ -193,7 +193,7 @@ export const Homescreen = ({ onNavigate }: HomescreenProps = {}) => {
   const currentTime = new Date().toLocaleTimeString([], { 
     hour: '2-digit', 
     minute: '2-digit',
-    hour12: true 
+    hour12: false 
   });
   
   const currentDate = new Date().toLocaleDateString([], { 
@@ -203,72 +203,94 @@ export const Homescreen = ({ onNavigate }: HomescreenProps = {}) => {
   });
 
   return (
-    <div className="h-full bg-gradient-to-br from-background via-background to-os-surface p-6">
-      {/* Welcome Header */}
-      <div className="mb-8 text-center">
-        <div className="text-4xl font-light text-foreground mb-1 font-mono">
+    <div className="h-full bg-gradient-to-b from-background to-os-surface/50 p-6 flex flex-col">
+      {/* Time & Date */}
+      <div className="text-center mb-12">
+        <div className="text-5xl font-extralight text-foreground mb-2 tracking-wider">
           {currentTime}
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground font-medium">
           {currentDate}
         </div>
       </div>
       
-      {/* Widget Panels */}
-      <ResizablePanelGroup direction="horizontal" className="h-80 rounded-2xl border border-border bg-os-surface/30 backdrop-blur-sm">
-        <ResizablePanel defaultSize={35} minSize={25}>
-          <div className="h-full p-3">
-            <AnalogClock />
+      {/* Main Widgets - Simplified */}
+      <div className="flex-1 max-w-sm mx-auto w-full space-y-6">
+        {/* Weather Widget - Clean */}
+        <Card className="bg-os-surface/70 border-border/40 p-6 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <Icon name="sun" className="text-shield-accent" size={24} />
+              <span className="text-sm text-foreground font-medium">Today</span>
+            </div>
+            <span className="text-2xl font-light text-foreground">72°</span>
           </div>
-        </ResizablePanel>
+          <div className="text-xs text-muted-foreground">Clear skies, light breeze</div>
+        </Card>
         
-        <ResizableHandle withHandle className="w-1 bg-border hover:bg-border/80" />
-        
-        <ResizablePanel defaultSize={35} minSize={25}>
-          <div className="h-full p-3">
-            <WeatherWidget />
-          </div>
-        </ResizablePanel>
-        
-        <ResizableHandle withHandle className="w-1 bg-border hover:bg-border/80" />
-        
-        <ResizablePanel defaultSize={30} minSize={25}>
-          <div className="h-full p-3">
-            <QuickActions />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
-      
-      {/* Quick Access Apps */}
-      <div className="mt-8 mb-6">
-        <div className="flex justify-center space-x-6">
-          {[
-            { name: 'shield', label: 'Shield', action: () => onNavigate?.('dashboard') },
-            { name: 'phone', label: 'Phone' },
-            { name: 'messageSquare', label: 'Messages' },
-            { name: 'camera', label: 'Camera' }
-          ].map((app) => (
-            <button
-              key={app.name}
-              onClick={app.action}
-              className="flex flex-col items-center space-y-2 p-3 rounded-2xl hover:bg-os-surface-elevated transition-colors group"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-os-surface border border-border flex items-center justify-center group-hover:scale-105 transition-transform">
+        {/* Quick Toggles - Minimal */}
+        <Card className="bg-os-surface/70 border-border/40 p-6 backdrop-blur-sm">
+          <div className="grid grid-cols-4 gap-4">
+            {[
+              { name: 'wifi', active: true },
+              { name: 'bluetooth', active: false },
+              { name: 'flashlight', active: false },
+              { name: 'shield', active: true, isShield: true }
+            ].map((toggle) => (
+              <button
+                key={toggle.name}
+                className={`h-12 w-12 rounded-2xl border flex items-center justify-center transition-all ${
+                  toggle.active 
+                    ? toggle.isShield 
+                      ? 'bg-shield/20 border-shield/50' 
+                      : 'bg-foreground/10 border-foreground/30'
+                    : 'bg-transparent border-border hover:bg-os-surface-elevated'
+                }`}
+              >
                 <Icon 
-                  name={app.name} 
-                  className={`h-7 w-7 ${app.name === 'shield' ? 'text-shield-accent' : 'text-muted-foreground'}`} 
+                  name={toggle.name} 
+                  size={20} 
+                  className={toggle.active 
+                    ? toggle.isShield 
+                      ? 'text-shield-accent' 
+                      : 'text-foreground'
+                    : 'text-muted-foreground'
+                  } 
                 />
-              </div>
-              <span className="text-xs text-muted-foreground font-medium">
-                {app.label}
-              </span>
-            </button>
-          ))}
-        </div>
+              </button>
+            ))}
+          </div>
+        </Card>
       </div>
       
-      <div className="text-xs text-muted-foreground text-center">
-        Drag widget handles to resize • Swipe up for apps
+      {/* App Shortcuts */}
+      <div className="flex justify-center space-x-8 mt-8">
+        {[
+          { name: 'shield', label: 'Virtual Shield', action: () => onNavigate?.('dashboard'), highlight: true },
+          { name: 'shopping-bag', label: 'App Store', action: () => onNavigate?.('app-drawer') },
+          { name: 'settings', label: 'Settings', action: () => onNavigate?.('settings') }
+        ].map((app) => (
+          <button
+            key={app.name}
+            onClick={app.action}
+            className="flex flex-col items-center space-y-3 p-4 rounded-3xl hover:bg-os-surface-elevated/50 transition-all group"
+          >
+            <div className={`w-16 h-16 rounded-3xl border flex items-center justify-center group-hover:scale-105 transition-transform ${
+              app.highlight 
+                ? 'bg-shield/20 border-shield/40' 
+                : 'bg-os-surface border-border'
+            }`}>
+              <Icon 
+                name={app.name} 
+                className={app.highlight ? 'text-shield-accent' : 'text-muted-foreground'} 
+                size={28} 
+              />
+            </div>
+            <span className="text-xs text-muted-foreground font-medium">
+              {app.label}
+            </span>
+          </button>
+        ))}
       </div>
     </div>
   );

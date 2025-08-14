@@ -56,6 +56,9 @@ export function RealTimePrivacyDashboard() {
     "CALL_LOGS": "phone",
     "MESSAGES": "message-square",
     "FILE_ACCESS": "file",
+    "CAMERA": "camera",
+    "MICROPHONE": "mic",
+    "STORAGE": "hard-drive",
     "GENERAL": "settings"
   };
 

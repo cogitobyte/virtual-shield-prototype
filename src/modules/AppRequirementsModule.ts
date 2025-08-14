@@ -114,6 +114,9 @@ const PERMISSION_RISK_SCORES: Record<PermissionType, number> = {
   'CALL_LOGS': 60,       // Medium-high risk - reveals communication patterns
   'MESSAGES': 85,        // Very high risk - content of communications
   'FILE_ACCESS': 65,     // Medium-high risk - access to personal documents
+  'CAMERA': 70,          // High risk - visual privacy
+  'MICROPHONE': 80,      // Very high risk - audio privacy
+  'STORAGE': 65,         // Medium-high risk - file access
   'GENERAL': 50          // Medium risk - general permissions
 };
 

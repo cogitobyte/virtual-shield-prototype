@@ -5,57 +5,57 @@
  
 @layer base {
   :root {
-    /* Phone OS Monochrome Palette */
-    --background: 0 0% 8%;
-    --foreground: 0 0% 95%;
+    /* Sophisticated Dark OS Palette */
+    --background: 210 15% 9%;
+    --foreground: 210 20% 98%;
 
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 95%;
+    --card: 215 20% 12%;
+    --card-foreground: 210 20% 98%;
 
-    --popover: 0 0% 15%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 215 25% 15%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 0 0% 95%;
-    --primary-foreground: 0 0% 8%;
+    --primary: 210 20% 98%;
+    --primary-foreground: 210 15% 9%;
 
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 0 0% 85%;
+    --secondary: 215 20% 18%;
+    --secondary-foreground: 210 15% 85%;
 
-    --muted: 0 0% 22%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 215 15% 25%;
+    --muted-foreground: 210 10% 65%;
 
-    --accent: 0 0% 95%;
-    --accent-foreground: 0 0% 8%;
+    --accent: 210 20% 98%;
+    --accent-foreground: 210 15% 9%;
 
-    --destructive: 0 0% 45%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 210 20% 98%;
 
-    --border: 0 0% 25%;
-    --input: 0 0% 18%;
-    --ring: 0 0% 80%;
+    --border: 215 15% 30%;
+    --input: 215 20% 18%;
+    --ring: 210 40% 70%;
     
     /* Status Bar */
-    --status-bar: 0 0% 5%;
-    --status-indicator: 0 0% 75%;
+    --status-bar: 210 20% 8%;
+    --status-indicator: 210 15% 75%;
     
     /* Navigation */
-    --nav-active: 0 0% 95%;
-    --nav-inactive: 0 0% 45%;
+    --nav-active: 210 20% 98%;
+    --nav-inactive: 210 10% 45%;
     
     /* OS Elements */
-    --os-surface: 0 0% 15%;
-    --os-surface-elevated: 0 0% 20%;
-    --os-overlay: 0 0% 5% / 0.9;
+    --os-surface: 215 20% 16%;
+    --os-surface-elevated: 215 25% 22%;
+    --os-overlay: 210 20% 8% / 0.85;
     
     /* VDC Integration */
-    --shield: 0 0% 75%;
-    --shield-dark: 0 0% 25%;
-    --shield-light: 0 0% 85%;
-    --shield-secondary: 0 0% 55%;
-    --shield-accent: 0 0% 65%;
+    --shield: 220 70% 60%;
+    --shield-dark: 220 80% 25%;
+    --shield-light: 220 50% 85%;
+    --shield-secondary: 220 60% 50%;
+    --shield-accent: 220 65% 70%;
     
     /* Radius */
-    --radius: 12px;
+    --radius: 16px;
   }
 }
  

@@ -1,5 +1,5 @@
 // Permission Types
-export type PermissionType = 'CONTACTS' | 'LOCATION' | 'FILE_ACCESS' | 'CALL_LOGS' | 'MESSAGES' | 'GENERAL';
+export type PermissionType = 'CONTACTS' | 'LOCATION' | 'FILE_ACCESS' | 'CALL_LOGS' | 'MESSAGES' | 'GENERAL' | 'CAMERA' | 'MICROPHONE' | 'STORAGE';
 
 // Risk Level
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -9,7 +9,8 @@ export interface App {
   id: string;
   name: string;
   icon: string;
-  trusted: boolean;
+  trusted?: boolean;
+  trustLevel?: 'low' | 'medium' | 'high';
 }
 
 // Permission Request

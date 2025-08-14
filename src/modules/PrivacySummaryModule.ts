@@ -29,6 +29,9 @@ export const generatePrivacySummary = (logs: LogEntry[]): PrivacySummary[] => {
           'FILE_ACCESS': { granted: 0, denied: 0, simulated: 0 },
           'CONTACTS': { granted: 0, denied: 0, simulated: 0 },
           'LOCATION': { granted: 0, denied: 0, simulated: 0 },
+          'CAMERA': { granted: 0, denied: 0, simulated: 0 },
+          'MICROPHONE': { granted: 0, denied: 0, simulated: 0 },
+          'STORAGE': { granted: 0, denied: 0, simulated: 0 },
           'GENERAL': { granted: 0, denied: 0, simulated: 0 }
         },
         totalRiskScore: 0,

@@ -49,6 +49,9 @@ export function PrivacyDashboard() {
     'CALL_LOGS': 'Call Logs',
     'MESSAGES': 'Messages',
     'FILE_ACCESS': 'Files',
+    'CAMERA': 'Camera',
+    'MICROPHONE': 'Microphone',
+    'STORAGE': 'Storage',
     'GENERAL': 'General'
   };
   
@@ -79,6 +82,9 @@ export function PrivacyDashboard() {
         'CALL_LOGS': { granted: 0, simulated: 0, denied: 0 },
         'MESSAGES': { granted: 0, simulated: 0, denied: 0 },
         'FILE_ACCESS': { granted: 0, simulated: 0, denied: 0 },
+        'CAMERA': { granted: 0, simulated: 0, denied: 0 },
+        'MICROPHONE': { granted: 0, simulated: 0, denied: 0 },
+        'STORAGE': { granted: 0, simulated: 0, denied: 0 },
         'GENERAL': { granted: 0, simulated: 0, denied: 0 }
       };
       
