@@ -6,8 +6,8 @@ import { Icon } from '@/components/Icon';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { App, PermissionType } from '@/modules/types';
-import PermissionRequestDialog from './PermissionRequestDialog';
-import VirtualShieldPrompt from './VirtualShieldPrompt';
+import OSPermissionDialog from './OSPermissionDialog';
+import VDCSystemNotification from './VDCSystemNotification';
 import UISkinModule from '@/modules/UISkinModule';
 
 interface AppStoreApp extends App {
@@ -85,8 +85,12 @@ export function AppStore({ onNavigate }: AppStoreProps) {
   const [installingApp, setInstallingApp] = useState<string | null>(null);
   const [currentPermissionIndex, setCurrentPermissionIndex] = useState(0);
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
-  const [showVirtualShieldPrompt, setShowVirtualShieldPrompt] = useState(false);
   const [installProgress, setInstallProgress] = useState(0);
+  const [systemNotification, setSystemNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'protected' | 'blocked' | 'allowed';
+  }>({ show: false, message: '', type: 'allowed' });
 
   const filteredApps = MOCK_APPS.filter(app => 
     app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -122,60 +126,59 @@ export function AppStore({ onNavigate }: AppStoreProps) {
     
     const currentPermission = selectedApp.permissions[currentPermissionIndex];
     
+    // Show system notification
+    setSystemNotification({
+      show: true,
+      message: 'Protected by VDC',
+      type: 'protected'
+    });
+    
     // Process permission through UISkinModule
     const uiSkinModule = UISkinModule.getInstance();
     try {
       await uiSkinModule.requestPermission(selectedApp, currentPermission);
       
       // Move to next permission or complete installation
-      if (currentPermissionIndex < selectedApp.permissions.length - 1) {
-        setCurrentPermissionIndex(prev => prev + 1);
-        setTimeout(() => setShowPermissionDialog(true), 1000);
-      } else {
-        // Installation complete
-        setTimeout(() => {
+      setTimeout(() => {
+        if (currentPermissionIndex < selectedApp.permissions.length - 1) {
+          setCurrentPermissionIndex(prev => prev + 1);
+          setShowPermissionDialog(true);
+        } else {
+          // Installation complete
           setInstallingApp(null);
           setSelectedApp(null);
           setCurrentPermissionIndex(0);
-        }, 1000);
-      }
+        }
+      }, 1500);
     } catch (error) {
       console.error('Permission error:', error);
     }
   };
 
   const handleDenyPermission = () => {
-    setShowPermissionDialog(false);
-    setShowVirtualShieldPrompt(true);
-  };
-
-  const handleOpenVirtualShield = async () => {
     if (!selectedApp) return;
     
-    setShowVirtualShieldPrompt(false);
+    setShowPermissionDialog(false);
     
-    const currentPermission = selectedApp.permissions[currentPermissionIndex];
+    // Show blocked notification
+    setSystemNotification({
+      show: true,
+      message: 'Blocked by VDC',
+      type: 'blocked'
+    });
     
-    // Process with Virtual Shield
-    const uiSkinModule = UISkinModule.getInstance();
-    try {
-      await uiSkinModule.requestPermission(selectedApp, currentPermission);
-      
-      // Continue with next permission or complete
+    // Continue with next permission or complete
+    setTimeout(() => {
       if (currentPermissionIndex < selectedApp.permissions.length - 1) {
         setCurrentPermissionIndex(prev => prev + 1);
-        setTimeout(() => setShowPermissionDialog(true), 1000);
+        setShowPermissionDialog(true);
       } else {
-        // Installation complete with Virtual Shield protection
-        setTimeout(() => {
-          setInstallingApp(null);
-          setSelectedApp(null);
-          setCurrentPermissionIndex(0);
-        }, 1000);
+        // Installation complete
+        setInstallingApp(null);
+        setSelectedApp(null);
+        setCurrentPermissionIndex(0);
       }
-    } catch (error) {
-      console.error('Virtual Shield error:', error);
-    }
+    }, 1500);
   };
 
   return (
@@ -281,21 +284,22 @@ export function AppStore({ onNavigate }: AppStoreProps) {
         ))}
       </div>
 
-      {/* Permission Request Dialog */}
-      <PermissionRequestDialog
+      {/* OS Permission Dialog with VDC Integration */}
+      <OSPermissionDialog
         open={showPermissionDialog}
         onOpenChange={setShowPermissionDialog}
         app={selectedApp}
-        permissionType={selectedApp?.permissions[currentPermissionIndex] || 'GENERAL'}
+        permissionType={selectedApp?.permissions[currentPermissionIndex] || null}
         onAllow={handleAllowPermission}
         onDeny={handleDenyPermission}
       />
 
-      {/* Virtual Shield Prompt */}
-      <VirtualShieldPrompt
-        open={showVirtualShieldPrompt}
-        onOpenChange={setShowVirtualShieldPrompt}
-        onOpenDashboard={handleOpenVirtualShield}
+      {/* VDC System Notification */}
+      <VDCSystemNotification
+        show={systemNotification.show}
+        message={systemNotification.message}
+        type={systemNotification.type}
+        onComplete={() => setSystemNotification(prev => ({ ...prev, show: false }))}
       />
     </div>
   );

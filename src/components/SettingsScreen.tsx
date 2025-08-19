@@ -46,51 +46,23 @@ export function SettingsScreen({ onNavigate }: SettingsScreenProps) {
 
   const settingsSections: SettingsSection[] = [
     {
-      title: "Virtual Data Creator (VDC)",
+      title: "Privacy",
       items: [
         {
-          id: 'vdc-dashboard',
-          name: 'Virtual Shield Dashboard',
-          icon: 'shield',
-          description: 'Manage privacy protection settings',
-          type: 'navigation',
-          action: () => onNavigate('dashboard')
-        },
-        {
           id: 'vdc-enabled',
-          name: 'Enable Virtual Shield',
-          icon: 'shieldCheck',
-          description: 'Protect your data with virtual responses',
+          name: 'Virtual Data Creator',
+          icon: 'shield',
+          description: 'Automatically protect sensitive permissions',
           type: 'toggle',
           value: settings.vdcEnabled,
           action: () => updateSetting('vdcEnabled', !settings.vdcEnabled)
         },
         {
-          id: 'vdc-realtime',
-          name: 'Real-time Protection',
-          icon: 'zap',
-          description: 'Monitor and protect permissions in real-time',
-          type: 'toggle',
-          value: settings.vdcRealTimeProtection,
-          action: () => updateSetting('vdcRealTimeProtection', !settings.vdcRealTimeProtection)
-        },
-        {
-          id: 'vdc-floating',
-          name: 'Floating Shield Icon',
-          icon: 'eye',
-          description: 'Show protection status overlay',
-          type: 'toggle',
-          value: settings.vdcFloatingIcon,
-          action: () => updateSetting('vdcFloatingIcon', !settings.vdcFloatingIcon)
-        },
-        {
-          id: 'vdc-notifications',
-          name: 'Privacy Notifications',
-          icon: 'bell',
-          description: 'Get notified of protection activities',
-          type: 'toggle',
-          value: settings.vdcNotifications,
-          action: () => updateSetting('vdcNotifications', !settings.vdcNotifications)
+          id: 'privacy-activity',
+          name: 'Privacy Activity',
+          icon: 'activity',
+          description: 'View recent VDC protection activity',
+          type: 'navigation'
         }
       ]
     },

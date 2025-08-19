@@ -7,10 +7,10 @@ import { SettingsScreen } from './SettingsScreen';
 import { Dashboard } from './Dashboard';
 import { NavigationBar } from './NavigationBar';
 import { AppStore } from './AppStore';
-import { MobileShieldDashboard } from './MobileShieldDashboard';
+
 import { cn } from '@/lib/utils';
 
-export type OSScreen = 'homescreen' | 'dashboard' | 'settings' | 'app-drawer' | 'app-store' | 'shield-dashboard';
+export type OSScreen = 'homescreen' | 'dashboard' | 'settings' | 'app-drawer' | 'app-store';
 
 interface PhoneOSState {
   currentScreen: OSScreen;
@@ -90,8 +90,6 @@ export function PhoneOS() {
         return <AppDrawer onNavigate={navigateToScreen} />;
       case 'app-store':
         return <AppStore onNavigate={navigateToScreen} />;
-      case 'shield-dashboard':
-        return <MobileShieldDashboard onNavigate={navigateToScreen} />;
       default:
         return <Homescreen onNavigate={navigateToScreen} />;
     }

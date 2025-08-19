@@ -13,8 +13,6 @@ import { App, PermissionType, PermissionResponse } from '@/modules/types';
 import UISkinModule from '@/modules/UISkinModule';
 import { Icon } from '@/components/Icon';
 import { useIsMobile } from '@/hooks/use-mobile';
-import PermissionRequestDialog from './PermissionRequestDialog';
-import VirtualShieldPrompt from './VirtualShieldPrompt';
 import PermissionDemo from './PermissionDemo';
 import InteractivePermissionLearning from './InteractivePermissionLearning';
 import CustomizableDashboard from './CustomizableDashboard';
@@ -27,7 +25,6 @@ export function Dashboard() {
   const [activeTab, setActiveTab] = useState("request");
   const [showHelp, setShowHelp] = useState(true);
   const [showPermissionRequest, setShowPermissionRequest] = useState(false);
-  const [showVirtualShieldPrompt, setShowVirtualShieldPrompt] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   const [showFloatingIcon, setShowFloatingIcon] = useState(false);
   const [showLearningModule, setShowLearningModule] = useState(false);
@@ -84,22 +81,12 @@ export function Dashboard() {
     }
     
     setLastPermissionType(permissionType);
-    
-    // Show system permission request dialog first
-    setShowPermissionRequest(true);
-  };
-  
-  const handleAllowPermission = async () => {
-    setShowPermissionRequest(false);
-    
-    if (!selectedApp || !lastPermissionType) return;
-    
     setIsLoading(true);
     
     try {
       // Process the permission through the UISkinModule
       const uiSkinModule = UISkinModule.getInstance();
-      const response = await uiSkinModule.requestPermission(selectedApp, lastPermissionType);
+      const response = await uiSkinModule.requestPermission(selectedApp, permissionType);
       
       // Set the result
       setPermissionResult(response);
@@ -122,21 +109,13 @@ export function Dashboard() {
     }
   };
   
-  const handleDenyPermission = () => {
-    setShowPermissionRequest(false);
-    // Show Virtual Shield prompt after denying permission
-    setShowVirtualShieldPrompt(true);
-  };
-  
   const handleOpenVirtualShield = () => {
-    setShowVirtualShieldPrompt(false);
     setShowFloatingIcon(false);
-    // Here we would proceed with Virtual Shield's protection
+    // Simplified - just process the permission since VDC is now automatic
     if (!selectedApp || !lastPermissionType) return;
     
     setIsLoading(true);
     
-    // Process with Virtual Shield (simulated data)
     const uiSkinModule = UISkinModule.getInstance();
     uiSkinModule.requestPermission(selectedApp, lastPermissionType)
       .then(response => {
@@ -492,31 +471,6 @@ export function Dashboard() {
           </div>
         </SheetContent>
       </Sheet>
-      
-      {/* Permission Request Dialog */}
-      <PermissionRequestDialog
-        open={showPermissionRequest}
-        onOpenChange={setShowPermissionRequest}
-        app={selectedApp}
-        permissionType={lastPermissionType}
-        onAllow={handleAllowPermission}
-        onDeny={handleDenyPermission}
-      />
-      
-      {/* Virtual Shield Prompt */}
-      <VirtualShieldPrompt
-        open={showVirtualShieldPrompt}
-        onOpenChange={setShowVirtualShieldPrompt}
-        onOpenDashboard={handleOpenVirtualShield}
-      />
-      
-      {/* Floating Virtual Shield Icon */}
-      <VirtualShieldPrompt
-        open={showFloatingIcon}
-        onOpenChange={setShowFloatingIcon}
-        onOpenDashboard={handleOpenVirtualShield}
-        isFloatingMode={true}
-      />
     </div>
   );
 }

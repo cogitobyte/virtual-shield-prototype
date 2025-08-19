@@ -11,7 +11,7 @@ interface NavigationBarProps {
 export function NavigationBar({ currentScreen, onNavigate }: NavigationBarProps) {
   const navItems = [
     { id: 'homescreen' as OSScreen, icon: 'home', label: 'Home' },
-    { id: 'shield-dashboard' as OSScreen, icon: 'shield', label: 'Shield' },
+    { id: 'app-store' as OSScreen, icon: 'shopping-bag', label: 'Store' },
     { id: 'app-drawer' as OSScreen, icon: 'grid3x3', label: 'Apps' },
     { id: 'settings' as OSScreen, icon: 'settings', label: 'Settings' }
   ];
@@ -32,11 +32,7 @@ export function NavigationBar({ currentScreen, onNavigate }: NavigationBarProps)
         >
           <Icon 
             name={item.icon} 
-            className={`h-5 w-5 ${
-              item.id === 'shield-dashboard' && currentScreen === item.id 
-                ? 'text-shield-accent' 
-                : ''
-            }`} 
+            className="h-5 w-5" 
           />
           <span className="text-[10px] font-medium">{item.label}</span>
         </Button>

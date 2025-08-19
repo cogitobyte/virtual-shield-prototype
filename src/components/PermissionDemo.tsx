@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { Icon } from '@/components/Icon';
-import PermissionRequestDialog from '@/components/PermissionRequestDialog';
-import VirtualShieldPrompt from '@/components/VirtualShieldPrompt';
+import OSPermissionDialog from '@/components/OSPermissionDialog';
 import { App } from '@/modules/types';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -22,7 +21,6 @@ const demoApp: App = {
 
 export function PermissionDemo({ onComplete, onOpenDashboard }: PermissionDemoProps) {
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
-  const [showFloatingIcon, setShowFloatingIcon] = useState(false);
   
   // Show permission dialog when component mounts
   useEffect(() => {
@@ -32,14 +30,18 @@ export function PermissionDemo({ onComplete, onOpenDashboard }: PermissionDemoPr
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle permission denial - show floating icon
+  // Handle permission denial - end demo with VDC protection message
   const handleDenyPermission = () => {
     setShowPermissionDialog(false);
     
-    // Show the floating Virtual Shield icon after a delay
+    toast({
+      title: "Protected by VDC",
+      description: "Virtual Shield automatically protected your data.",
+    });
+    
     setTimeout(() => {
-      setShowFloatingIcon(true);
-    }, 1000);
+      onComplete();
+    }, 1500);
   };
   
   // Handle permission approval - end demo
@@ -56,13 +58,6 @@ export function PermissionDemo({ onComplete, onOpenDashboard }: PermissionDemoPr
       onComplete();
     }, 1500);
   };
-  
-  // Handle opening the dashboard from the floating icon
-  const handleOpenFromFloatingIcon = () => {
-    setShowFloatingIcon(false);
-    onOpenDashboard();
-  };
-  
   return (
     <div className="space-y-6 py-4 relative min-h-[500px]">
       <motion.div 
@@ -86,7 +81,7 @@ export function PermissionDemo({ onComplete, onOpenDashboard }: PermissionDemoPr
             <div className="h-16 w-16 bg-shield/30 rounded-full flex items-center justify-center animate-pulse">
               <Icon name="smartphone" className="h-8 w-8 text-shield-light" />
             </div>
-            <p className="text-lg">App is loading...</p>
+            <p className="text-lg">Tap "Allow with Protection" or "Don't Allow" to see VDC in action</p>
           </div>
           
           <div className="flex justify-between mt-6">
@@ -97,22 +92,14 @@ export function PermissionDemo({ onComplete, onOpenDashboard }: PermissionDemoPr
         </div>
       </motion.div>
       
-      {/* Permission Request Dialog - System Style */}
-      <PermissionRequestDialog
+      {/* OS Permission Dialog - Demo Mode */}
+      <OSPermissionDialog
         open={showPermissionDialog}
         onOpenChange={setShowPermissionDialog}
         app={demoApp}
-        permissionType="GENERAL"
+        permissionType="CONTACTS"
         onAllow={handleAllowPermission}
         onDeny={handleDenyPermission}
-      />
-      
-      {/* Floating Virtual Shield Icon */}
-      <VirtualShieldPrompt
-        open={showFloatingIcon}
-        onOpenChange={setShowFloatingIcon}
-        onOpenDashboard={handleOpenFromFloatingIcon}
-        isFloatingMode={true}
       />
     </div>
   );
